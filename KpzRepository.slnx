@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="KpzRepository.SqlServer/KpzRepository.SqlServer.csproj" />
+  <Project Path="KpzRepository/KpzRepository.csproj" />
+</Solution>
