@@ -89,8 +89,22 @@ public interface IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>,
     /// <returns>Number of inserted entities.</returns>
     Task<long> AddRangeAsync(IEnumerable<TEntity> entities, IDbTransaction? transaction = null);
 
+    /// <summary>
+    /// Updates entity in the db in the mapped table. Entity is searched by id and then updated with new values.
+    /// </summary>
+    /// <param name="entity">Entity to be updated.</param>
+    /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
+    /// <returns>true if entity successfully updated otherwise false.</returns>
     bool Update(TEntity entity, IDbTransaction? transaction = null);
+
+    /// <summary>
+    /// Updates entity in the db in the mapped table in async mode. Entity is searched by id and then updated with new values.
+    /// </summary>
+    /// <param name="entity">Entity to be updated.</param>
+    /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
+    /// <returns>true if entity successfully updated otherwise false.</returns>
     Task<bool> UpdateAsync(TEntity entity, IDbTransaction? transaction = null);
+
     bool Delete(TKey id, IDbTransaction? transaction = null);
     bool DeleteAll(IDbTransaction? transaction = null);
     bool IsEmpty(IDbTransaction? transaction = null);
@@ -110,8 +124,21 @@ public interface IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>,
     /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
     /// <returns>Found entity or null if nothing found.</returns>
     Task<TEntity?> GetAsync(TKey id, IDbTransaction? transaction = null);
+
+    /// <summary>
+    /// Retrieves all entities from the db in the mapped table.
+    /// </summary>
+    /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
+    /// <returns>All entities from the db in the mapped table.</returns>
     IEnumerable<TEntity> GetAll(IDbTransaction? transaction = null);
+
+    /// <summary>
+    /// Retrieves all entities from the db in the mapped table in async mode.
+    /// </summary>
+    /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
+    /// <returns>All entities from the db in the mapped table.</returns>
     Task<IEnumerable<TEntity>> GetAllAsync(IDbTransaction? transaction = null);
+
     IEnumerable<TEntity> GetAllOrderBy(string? columnName = null, bool desc = false, IDbTransaction? transaction = null);
     Task<IEnumerable<TEntity>> GetAllOrderByAsync(string? columnName = null, bool desc = false, IDbTransaction? transaction = null);
     TEntity? GetMinEntity(IDbTransaction? transaction = null);
@@ -122,26 +149,45 @@ public interface IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>,
         bool groupBy = false, IDbTransaction? transaction = null);
 
     /// <summary>
-    /// Counts the number of entities in the db in the table.
+    /// Counts the number of entities in the db in the mapped table.
     /// </summary>
     /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
-    /// <returns>The number of entities in the db in the table.</returns>
+    /// <returns>The number of entities in the db in the mapped table.</returns>
     long Count(IDbTransaction? transaction = null);
     
     /// <summary>
-    /// Counts the number of entities in the db in the table in async mode.
+    /// Counts the number of entities in the db in the mapped table in async mode.
     /// </summary>
     /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
-    /// <returns>The number of entities in the db in the table.</returns>
+    /// <returns>The number of entities in the db in the mapped table.</returns>
     Task<long> CountAsync(IDbTransaction? transaction = null);
 
+    /// <summary>
+    /// Returns last inserted id in the db in the mapped table. It can be useful when you need to insert entity and then get its id to do some operations with it.
+    /// </summary>
+    /// <remarks>This method is database specific and may not be supported by all databases. The method throws exception in KpzRepository implementation.</remarks>
+    /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
+    /// <returns>Last inserted id or null if no entities exist.</returns>
     TKey? GetLastInsertedId(IDbTransaction? transaction = null);
 
+    /// <summary>
+    /// Returns max id from the mapped table.
+    /// </summary>
+    /// <param name="transaction">Started transaction the method to be run in. You can ignore it if 
+    /// no transactions are used.</param>
+    /// <returns>Max id or null if no entities exist.</returns>
     TKey? GetMaxId(IDbTransaction? transaction = null);
+
+    /// <summary>
+    /// Returns min id from the mapped table.
+    /// </summary>
+    /// <param name="transaction">Started transaction the method to be run in. You can ignore it if 
+    /// no transactions are used.</param>
+    /// <returns>Min id or null if no entities exist.</returns>
     TKey? GetMinId(IDbTransaction? transaction = null);
 
     /// <summary>
-    /// Checks if entity exists in db.
+    /// Checks if entity exists in the db in the mapped table.
     /// </summary>
     /// <param name="id">Id of the entity to check.</param>
     /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
@@ -149,7 +195,7 @@ public interface IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>,
     bool Exists(TKey id, IDbTransaction? transaction = null);
 
     /// <summary>
-    /// Checks if entity exists in db in async mode.
+    /// Checks if entity exists in the db in the mapped table in async mode.
     /// </summary>
     /// <param name="id">Id of the entity to check.</param>
     /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>

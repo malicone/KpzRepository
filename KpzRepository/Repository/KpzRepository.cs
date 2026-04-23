@@ -9,7 +9,7 @@ namespace KpzRepository.Repository;
 /// <summary>
 /// This class uses Dapper and Dapper.Contrib.Extensions libraries.
 /// </summary>
-public abstract class KpzRepository<TKey, TEntity> : IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>, new()
+public class KpzRepository<TKey, TEntity> : IDisposable, IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>, new()
 {
     public KpzRepository(IDbConnection connection)
     {
@@ -226,11 +226,6 @@ public abstract class KpzRepository<TKey, TEntity> : IKpzRepository<TKey, TEntit
         return null;
     }
 
-    /// <summary>
-    /// Selects all entities from the db.
-    /// </summary>
-    /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
-    /// <returns>All entities as Enumerable or empty enumerable if nothing found.</returns>
     public virtual IEnumerable<TEntity> GetAll(IDbTransaction? transaction = null)
     {
         if (OpenConnection())
@@ -310,11 +305,11 @@ public abstract class KpzRepository<TKey, TEntity> : IKpzRepository<TKey, TEntit
     }
 
     public virtual IEnumerable<TEntity> GetEntitiesLike(string fieldName, string searchText,
-        bool descOrder = false, bool groupBy = false, IDbTransaction? transaction = null)
+        bool desc = false, bool groupBy = false, IDbTransaction? transaction = null)
     {
         if (OpenConnection())
         {
-            string sql = ComposeLikeQuery(fieldName, searchText, descOrder, groupBy);
+            string sql = ComposeLikeQuery(fieldName, searchText, desc, groupBy);
             var foundEntities = Connection?.Query<TEntity>(sql, null, transaction);
             return foundEntities ?? Enumerable.Empty<TEntity>();
         }
@@ -322,32 +317,26 @@ public abstract class KpzRepository<TKey, TEntity> : IKpzRepository<TKey, TEntit
     }
 
     protected virtual string ComposeLikeQuery(string fieldName, string searchText,
-        bool descOrder = false, bool groupBy = false)
+        bool desc = false, bool groupBy = false)
     {
         string groupByClause = groupBy ? $"GROUP BY {fieldName}" : string.Empty;
-        string orderDirection = descOrder ? "DESC" : "ASC";
+        string orderDirection = desc ? "DESC" : "ASC";
         return $@"SELECT TRIM({fieldName}) FROM {GetRepositoryTableName()} WHERE UPPER(TRIM({fieldName})) 
                 LIKE '%{searchText.ToUpper()}%' {groupByClause} ORDER BY {fieldName} {orderDirection}";
     }
 
     public virtual async Task<IEnumerable<TEntity>> GetEntitiesLikeAsync(string fieldName, string searchText,
-        bool descOrder = false, bool groupBy = false, IDbTransaction? transaction = null)
+        bool desc = false, bool groupBy = false, IDbTransaction? transaction = null)
     {
         if (OpenConnection())
         {
-            string sql = ComposeLikeQuery(fieldName, searchText, descOrder, groupBy);
+            string sql = ComposeLikeQuery(fieldName, searchText, desc, groupBy);
             var foundEntities = await Connection?.QueryAsync<TEntity>(sql, null, transaction)!;
             return foundEntities ?? Enumerable.Empty<TEntity>();
         }
         return Enumerable.Empty<TEntity>();
     }
 
-    /// <summary>
-    /// Returns max id from the table.
-    /// </summary>
-    /// <param name="transaction">Started transaction the method to be run in. You can ignore it if 
-    /// no transactions are used.</param>
-    /// <returns>Max id or default key type value.</returns>
     public virtual TKey? GetMaxId(IDbTransaction? transaction = null)
     {
         if (OpenConnection())
@@ -399,4 +388,49 @@ public abstract class KpzRepository<TKey, TEntity> : IKpzRepository<TKey, TEntit
         throw new NotImplementedException("Not implemented in base repository. Please override in derived repository or use a " +
             "specific implementation like KpzRepository.SqlServer.");
     }
+
+    protected virtual void Dispose(bool freeManagedResources)
+    {
+        if (_alreadyDisposed == false)
+        {
+            if (freeManagedResources)
+            {
+                FreeManagedResources();
+            }
+            FreeUnmanagedResources();
+            _alreadyDisposed = true;
+        }
+    }
+
+    ~KpzRepository()
+    {
+        // Do not change this code. Put cleanup code in Dispose(bool freeManagedResources) method
+        Dispose(freeManagedResources: false);
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in Dispose(bool freeManagedResources) method
+        Dispose(freeManagedResources: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected void FreeManagedResources()
+    {
+
+    }
+    protected void FreeUnmanagedResources()
+    {
+        if(Connection != null)
+        {
+            if (Connection.State == ConnectionState.Open)
+            {
+                Connection.Close();
+            }
+            Connection.Dispose();
+            Connection = null;
+        }
+    }
+
+    private bool _alreadyDisposed;
 }
