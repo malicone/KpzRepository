@@ -6,7 +6,7 @@ namespace KpzRepository.Factory;
 public interface IKpzRepositoryFactory
 {
     /// <summary>
-    /// Creates base (minimum) repository for the specified entity type.
+    /// Creates base repository for the specified entity type. Base repository provides basic CRUD operations and can be used for any entity that inherits from BaseEntity<TKey>.
     /// </summary>
     /// <typeparam name="TKey">The type of the entity's primary key.</typeparam>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>

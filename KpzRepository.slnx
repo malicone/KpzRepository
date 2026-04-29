@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="KpzRepository.PostgreSql/KpzRepository.PostgreSql.csproj" Id="f7f16835-735d-4f10-bbe5-acdb2d400d1f" />
   <Project Path="KpzRepository.SqlServer/KpzRepository.SqlServer.csproj" />
   <Project Path="KpzRepository/KpzRepository.csproj" />
 </Solution>

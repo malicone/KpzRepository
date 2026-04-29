@@ -9,7 +9,7 @@ namespace KpzRepository.Repository;
 /// <summary>
 /// This class uses Dapper and Dapper.Contrib.Extensions libraries.
 /// </summary>
-public class KpzRepository<TKey, TEntity> : IDisposable, IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>, new()
+public abstract class KpzRepository<TKey, TEntity> : IDisposable, IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>, new()
 {
     public KpzRepository(IDbConnection connection)
     {

@@ -1,4 +1,5 @@
 ﻿using KpzRepository.Factory;
+using KpzRepository.SqlServer.Factory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -13,7 +14,7 @@ public static class DependencyInjection
 
         var repoFactoryDescriptor = new ServiceDescriptor(
             typeof(IKpzRepositoryFactory),
-            provider => new KpzRepositoryFactory(connectionString),
+            provider => new KpzRepositorySqlServerFactory(connectionString),
             ServiceLifetime.Transient);
         services.TryAdd(repoFactoryDescriptor);
 
