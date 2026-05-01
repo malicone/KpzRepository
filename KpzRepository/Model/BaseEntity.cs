@@ -11,36 +11,15 @@ namespace KpzRepository.Model;
 public abstract class BaseEntity<TKey>
 {
     /// <summary>
-    /// Gets value of id (primary key). We dont know the type of the id, so its generic. 
-    /// Primary key defined with [Key] or [ExplicitKey] attribute.    
+    /// Primary key of the entity/table. Primary key defined with [Key] or [ExplicitKey] attribute.
+    /// Hide the Id property in the derived classes if you want to use [ExplicitKey] attribute.
+    /// <code>
+    /// [ExplicitKey]
+    /// public new long Id { get; set; }
+    /// </code>
     /// </summary>
-    /// <returns>Id value of the entity.</returns>
-    public virtual TKey? GetEntityId()
-    {
-        PropertyInfo? keyProperty = GetKeyProperty();
-        if (keyProperty != null)
-        {
-            var propValue = keyProperty.GetValue(this);
-            if (propValue != null)
-            {
-                return (TKey)propValue;
-            }
-        }
-        return default;
-    }
-    /// <summary>
-    /// Sets value of id (primary key).We dont know the type of the id, so its generic. 
-    /// Primary key defined with [Key] or [ExplicitKey] attribute.    
-    /// </summary>
-    /// <param name="value">Value to be set as id (primary key).</param>
-    public virtual void SetEntityId(TKey value)
-    {
-        PropertyInfo? keyProperty = GetKeyProperty();
-        if (keyProperty != null)
-        {
-            keyProperty.SetValue(this, value);
-        }
-    }
+    [Key]
+    public TKey Id { get; set; } = default!;
 
     public virtual string GetTableName()
     {

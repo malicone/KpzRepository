@@ -11,7 +11,7 @@ namespace KpzRepository.Repository;
 /// </summary>
 /// <typeparam name="TKey">Type of primary key.</typeparam>
 /// <typeparam name="TEntity">Entity is mapped on table in the db.</typeparam>
-public interface IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>, new()
+public interface IKpzRepository<TKey, TEntity> : IDisposable where TEntity : BaseEntity<TKey>, new()
 {
     /// <summary>
     /// The db connection which is used to perform all operations.
@@ -167,24 +167,24 @@ public interface IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>,
     /// </summary>
     /// <remarks>This method is database specific and may not be supported by all databases. The method throws exception in KpzRepository implementation.</remarks>
     /// <param name="transaction">Started transaction the method to be run in. You can ignore it if no transactions are used.</param>
-    /// <returns>Last inserted id or null if no entities exist.</returns>
-    TKey? GetLastInsertedId(IDbTransaction? transaction = null);
+    /// <returns>Last inserted id or default value of TKey.</returns>
+    TKey GetLastInsertedId(IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns max id from the mapped table.
     /// </summary>
     /// <param name="transaction">Started transaction the method to be run in. You can ignore it if 
     /// no transactions are used.</param>
-    /// <returns>Max id or null if no entities exist.</returns>
-    TKey? GetMaxId(IDbTransaction? transaction = null);
+    /// <returns>Max id or default value of TKey.</returns>
+    TKey GetMaxId(IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns min id from the mapped table.
     /// </summary>
     /// <param name="transaction">Started transaction the method to be run in. You can ignore it if 
     /// no transactions are used.</param>
-    /// <returns>Min id or null if no entities exist.</returns>
-    TKey? GetMinId(IDbTransaction? transaction = null);
+    /// <returns>Min id or default value of TKey.</returns>
+    TKey GetMinId(IDbTransaction? transaction = null);
 
     /// <summary>
     /// Checks if entity exists in the db in the mapped table.

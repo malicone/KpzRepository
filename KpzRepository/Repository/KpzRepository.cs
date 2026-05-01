@@ -321,7 +321,7 @@ public abstract class KpzRepository<TKey, TEntity> : IDisposable, IKpzRepository
     {
         string groupByClause = groupBy ? $"GROUP BY {fieldName}" : string.Empty;
         string orderDirection = desc ? "DESC" : "ASC";
-        return $@"SELECT TRIM({fieldName}) FROM {GetRepositoryTableName()} WHERE UPPER(TRIM({fieldName})) 
+        return $@"SELECT * FROM {GetRepositoryTableName()} WHERE UPPER(TRIM({fieldName})) 
                 LIKE '%{searchText.ToUpper()}%' {groupByClause} ORDER BY {fieldName} {orderDirection}";
     }
 
@@ -337,32 +337,32 @@ public abstract class KpzRepository<TKey, TEntity> : IDisposable, IKpzRepository
         return Enumerable.Empty<TEntity>();
     }
 
-    public virtual TKey? GetMaxId(IDbTransaction? transaction = null)
+    public virtual TKey GetMaxId(IDbTransaction? transaction = null)
     {
         if (OpenConnection())
         {
             string sql = $"SELECT MAX({GetRepositoryKeyName()}) FROM {GetRepositoryTableName()}";
             var result = Connection?.ExecuteScalar(sql, null, transaction);
-            if ((result != null) && (result is TKey key))
+            if (result != null)
             {
-                return key;
+                return (TKey)result;
             }
         }
-        return default;
+        return default!;
     }
 
-    public virtual TKey? GetMinId(IDbTransaction? transaction = null)
+    public virtual TKey GetMinId(IDbTransaction? transaction = null)
     {
         if (OpenConnection())
         {
             string sql = $"SELECT MIN({GetRepositoryKeyName()}) FROM {GetRepositoryTableName()}";
             var result = Connection?.ExecuteScalar(sql, null, transaction);
-            if ((result != null) && (result is TKey key))
+            if (result != null)
             {
-                return key;
+                return (TKey)result;
             }
         }
-        return default;
+        return default!;
     }
 
     public virtual bool Update(TEntity entity, IDbTransaction? transaction = null)
@@ -383,7 +383,7 @@ public abstract class KpzRepository<TKey, TEntity> : IDisposable, IKpzRepository
         return false;
     }
 
-    public virtual TKey? GetLastInsertedId(IDbTransaction? transaction = null)
+    public virtual TKey GetLastInsertedId(IDbTransaction? transaction = null)
     {
         throw new NotImplementedException("Not implemented in base repository. Please override in derived repository or use a " +
             "specific implementation like KpzRepository.SqlServer.");

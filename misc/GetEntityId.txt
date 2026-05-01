@@ -1,0 +1,31 @@
+    /// <summary>
+    /// Gets value of id (primary key). We dont know the type of the id, so its generic. 
+    /// Primary key defined with [Key] or [ExplicitKey] attribute.    
+    /// </summary>
+    /// <returns>Id value of the entity.</returns>
+    public virtual TKey GetEntityId()
+    {
+        PropertyInfo? keyProperty = GetKeyProperty();
+        if (keyProperty != null)
+        {
+            var propValue = keyProperty.GetValue(this);
+            if (propValue != null)
+            {
+                return (TKey)propValue;
+            }
+        }
+        return default!;
+    }
+    /// <summary>
+    /// Sets value of id (primary key).We dont know the type of the id, so its generic. 
+    /// Primary key defined with [Key] or [ExplicitKey] attribute.    
+    /// </summary>
+    /// <param name="value">Value to be set as id (primary key).</param>
+    public virtual void SetEntityId(TKey value)
+    {
+        PropertyInfo? keyProperty = GetKeyProperty();
+        if (keyProperty != null)
+        {
+            keyProperty.SetValue(this, value);
+        }
+    }
