@@ -6,6 +6,8 @@ namespace KpzRepository.SqlServer.Tests.Model;
 [Table("TableWithLongId")]
 public class TableWithLongId : BaseEntity<long>
 {
+    [Key]
+    public long Id { get; set; }
     // Basic fields
     public string Name { get; set; } = null!;
     public string? Description { get; set; }

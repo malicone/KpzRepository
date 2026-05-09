@@ -18,8 +18,6 @@ public abstract class BaseEntity<TKey>
     /// public new long Id { get; set; }
     /// </code>
     /// </summary>
-    [Key]
-    public TKey Id { get; set; } = default!;
 
     public virtual string GetTableName()
     {
@@ -45,15 +43,39 @@ public abstract class BaseEntity<TKey>
         return GetKeyName();
     }
 
-    protected virtual Type? GetFieldType(string fieldName)
+    /// <summary>
+    /// Gets value of id (primary key). We dont know the type of the id, so its generic.
+    /// It can be string, int, long, etc. Also, we dont know the name of the id property.
+    /// Well get db with already defined tables.
+    /// </summary>
+    /// <returns>Id value of the entity.</returns>
+    public virtual TKey? GetEntityId()
     {
-        var property = GetType().GetProperties().FirstOrDefault(p => p.Name.Equals(fieldName));
-        if (property != null)
+        PropertyInfo? keyProperty = GetKeyProperty();
+        if(keyProperty != null)
         {
-            return property.PropertyType;
+            var propValue = keyProperty.GetValue(this);
+            if(propValue != null)
+            {
+                return (TKey)propValue;
+            }
         }
-        return null;
+        return default;
     }
+    
+    /// <summary>
+    /// Sets value of id (primary key).
+    /// </summary>
+    /// <param name="value">Value to be set as id (primary key).</param>
+    public virtual void SetEntityId(TKey value)
+    {
+        PropertyInfo? keyProperty = GetKeyProperty();
+        if(keyProperty != null)
+        {
+            keyProperty.SetValue(this, value);
+        }
+    }
+
     public virtual bool IsFieldTypeOfString(string fieldName)
     {
         Type? columnType = GetFieldType(fieldName);
@@ -62,6 +84,16 @@ public abstract class BaseEntity<TKey>
             return columnType == typeof(string);
         }
         return false;
+    }
+
+    protected virtual Type? GetFieldType(string fieldName)
+    {
+        var property = GetType().GetProperties().FirstOrDefault(p => p.Name.Equals(fieldName));
+        if(property != null)
+        {
+            return property.PropertyType;
+        }
+        return null;
     }
 
     protected virtual PropertyInfo? GetKeyProperty()

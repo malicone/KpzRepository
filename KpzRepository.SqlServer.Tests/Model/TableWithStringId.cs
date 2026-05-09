@@ -6,6 +6,8 @@ namespace KpzRepository.SqlServer.Tests.Model;
 [Table("TableWithStringId")]
 public class TableWithStringId : BaseEntity<string>
 {
+    [ExplicitKey]
+    public string Id { get; set; } = Guid.NewGuid().ToString("N");
     // Basic fields
     public string Title { get; set; } = null!;
     public string? Notes { get; set; }

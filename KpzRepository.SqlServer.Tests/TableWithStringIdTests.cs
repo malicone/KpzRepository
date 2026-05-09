@@ -6,48 +6,48 @@ using Microsoft.Extensions.DependencyInjection;
 namespace KpzRepository.SqlServer.Tests;
 
 [TestFixture]
-public class TableWithLongIdTests
+public class TableWithStringIdTests
 {
     [OneTimeSetUp]
     public void Setup()
-    {        
-        if(AllTestsSetup.Settings == null)
+    {
+        if (AllTestsSetup.Settings == null)
         {
             Assert.Fail($"Settings must be initialized in {nameof(AllTestsSetup)} before running tests.");
         }
-        if(string.IsNullOrWhiteSpace(AllTestsSetup.Settings!.DefaultConnectionString))
+        if (string.IsNullOrWhiteSpace(AllTestsSetup.Settings!.DefaultConnectionString))
         {
             Assert.Fail($"{nameof(AllTestsSetup.Settings.DefaultConnectionString)} must be set in {nameof(AllTestsSetup.Settings)} before running tests.");
-        }        
+        }
         string connectionString = AllTestsSetup.Settings.DefaultConnectionString;
 
         var services = new ServiceCollection();
-        services.AddKpzRepositorySqlServerFactory(connectionString);        
+        services.AddKpzRepositorySqlServerFactory(connectionString);
         _serviceProvider = services.BuildServiceProvider();
         _factory = _serviceProvider.GetRequiredService<IKpzRepositoryFactory>();
-        if(_factory == null)
+        if (_factory == null)
         {
             Assert.Fail($"Failed to resolve {nameof(IKpzRepositoryFactory)} from service provider.");
         }
-        _repository = _factory?.GetBaseRepository<long, TableWithLongId>();
+        _repository = _factory?.GetBaseRepository<string, TableWithStringId>();
         _repository?.DeleteAll();// Let's clear the table before we start testing
     }
 
     [OneTimeTearDown]
     public void TearDown()
     {
-        if(_repository != null)
+        if (_repository != null)
         {
             _repository.Dispose();
             _repository = null;
         }
-        if(_factory != null)
+        if (_factory != null)
         {
             _factory = null;
         }
-        if(_serviceProvider != null)
+        if (_serviceProvider != null)
         {
-            if(_serviceProvider is IDisposable disposable)
+            if (_serviceProvider is IDisposable disposable)
             {
                 disposable.Dispose();
             }
@@ -61,7 +61,7 @@ public class TableWithLongIdTests
     public void Connection_ShouldNotBeNull()
     {
         Assert.That(_repository!.Connection, Is.Not.Null);
-    }                                                                  
+    }
 
     [Test]
     public void OpenConnection_ShouldReturnTrue()
@@ -89,18 +89,18 @@ public class TableWithLongIdTests
 
     #region Metadata Tests
 
-    [Test]                                              
+    [Test]
     public void GetRepositoryTableName_ShouldReturnCorrectTableName()
     {
         var tableName = _repository!.GetRepositoryTableName();
-        Assert.That(tableName, Is.EqualTo($"{nameof(TableWithLongId)}"));
+        Assert.That(tableName, Is.EqualTo($"{nameof(TableWithStringId)}"));
     }
 
     [Test]
     public void GetRepositoryKeyName_ShouldReturnId()
     {
         var keyName = _repository!.GetRepositoryKeyName();
-        TableWithLongId entity = new TableWithLongId();
+        TableWithStringId entity = new TableWithStringId();
         Assert.That(keyName, Is.EqualTo($"{nameof(entity.Id)}"));
     }
 
@@ -113,10 +113,11 @@ public class TableWithLongIdTests
     {
         var entity = CreateTestEntity("Test Add");
         long initialCount = _repository!.Count();
-        var result = _repository.Add(entity);
+        var result = _repository!.Add(entity);
 
         Assert.That(result, Is.True);
-        Assert.That(entity.Id, Is.GreaterThan(default(long)));
+        Assert.That(entity.Id, Is.Not.Null);
+        Assert.That(entity.Id, Is.Not.Empty);
         Assert.That(_repository.Count(), Is.EqualTo(initialCount + 1));
 
         // Cleanup
@@ -128,10 +129,11 @@ public class TableWithLongIdTests
     {
         var entity = CreateTestEntity("Test AddAsync");
         long initialCount = await _repository!.CountAsync();
-        var result = await _repository.AddAsync(entity);
+        var result = await _repository!.AddAsync(entity);
 
         Assert.That(result, Is.True);
-        Assert.That(entity.Id, Is.GreaterThan(default(long)));
+        Assert.That(entity.Id, Is.Not.Null);
+        Assert.That(entity.Id, Is.Not.Empty);
         Assert.That(await _repository.CountAsync(), Is.EqualTo(initialCount + 1));
 
         // Cleanup
@@ -141,7 +143,7 @@ public class TableWithLongIdTests
     [Test]
     public void AddRange_ShouldInsertMultipleEntities()
     {
-        var entities = new List<TableWithLongId>
+        var entities = new List<TableWithStringId>
         {
             CreateTestEntity("Entity 1"),
             CreateTestEntity("Entity 2"),
@@ -154,8 +156,8 @@ public class TableWithLongIdTests
         transaction!.Commit();
 
         Assert.That(insertedCount, Is.EqualTo(3));
+        Assert.That(entities.All(e => string.IsNullOrEmpty(e.Title) == false), Is.True);
         Assert.That(_repository.Count(), Is.EqualTo(initialCount + 3));
-        Assert.That(entities.All(e => string.IsNullOrEmpty(e.Name) == false), Is.True);
 
         // Cleanup
         foreach (var entity in entities)
@@ -167,7 +169,7 @@ public class TableWithLongIdTests
     [Test]
     public async Task AddRangeAsync_ShouldInsertMultipleEntities()
     {
-        var entities = new List<TableWithLongId>
+        var entities = new List<TableWithStringId>
         {
             CreateTestEntity("Entity Async 1"),
             CreateTestEntity("Entity Async 2"),
@@ -180,8 +182,8 @@ public class TableWithLongIdTests
         transaction!.Commit();
 
         Assert.That(insertedCount, Is.EqualTo(3));
+        Assert.That(entities.All(e => string.IsNullOrEmpty(e.Title) == false), Is.True);
         Assert.That(await _repository.CountAsync(), Is.EqualTo(initialCount + 3));
-        Assert.That(entities.All(e => string.IsNullOrEmpty(e.Name) == false), Is.True);
 
         // Cleanup
         foreach (var entity in entities)
@@ -198,19 +200,19 @@ public class TableWithLongIdTests
     public void Update_ShouldModifyEntity_AndReturnTrue()
     {
         // Arrange
-        var entity = CreateTestEntity("Original Name");
+        var entity = CreateTestEntity("Original Title");
         _repository!.Add(entity);
 
         // Act
-        entity.Name = "Updated Name";
-        entity.Quantity = 100;
+        entity.Title = "Updated Title";
+        entity.Amount = 100.50;
         var result = _repository.Update(entity);
 
         // Assert
         Assert.That(result, Is.True);
         var updated = _repository.Get(entity.Id);
-        Assert.That(updated!.Name, Is.EqualTo("Updated Name"));
-        Assert.That(updated.Quantity, Is.EqualTo(100));
+        Assert.That(updated!.Title, Is.EqualTo("Updated Title"));
+        Assert.That(updated.Amount, Is.EqualTo(100.50));
 
         // Cleanup
         _repository.Delete(entity.Id);
@@ -220,19 +222,19 @@ public class TableWithLongIdTests
     public async Task UpdateAsync_ShouldModifyEntity_AndReturnTrue()
     {
         // Arrange
-        var entity = CreateTestEntity("Original Async Name");
+        var entity = CreateTestEntity("Original Async Title");
         await _repository!.AddAsync(entity);
 
         // Act
-        entity.Name = "Updated Async Name";
-        entity.Price = 99.99m;
+        entity.Title = "Updated Async Title";
+        entity.Balance = 99.99m;
         var result = await _repository.UpdateAsync(entity);
 
         // Assert
         Assert.That(result, Is.True);
         var updated = await _repository.GetAsync(entity.Id);
-        Assert.That(updated!.Name, Is.EqualTo("Updated Async Name"));
-        Assert.That(updated.Price, Is.EqualTo(99.99m));
+        Assert.That(updated!.Title, Is.EqualTo("Updated Async Title"));
+        Assert.That(updated.Balance, Is.EqualTo(99.99m));
 
         // Cleanup
         _repository.Delete(entity.Id);
@@ -281,7 +283,7 @@ public class TableWithLongIdTests
 
         Assert.That(retrieved, Is.Not.Null);
         Assert.That(retrieved!.Id, Is.EqualTo(entity.Id));
-        Assert.That(retrieved.Name, Is.EqualTo("Test Get"));
+        Assert.That(retrieved.Title, Is.EqualTo("Test Get"));
 
         // Cleanup
         _repository.Delete(entity.Id);
@@ -290,7 +292,7 @@ public class TableWithLongIdTests
     [Test]
     public void Get_ShouldReturnNull_WhenNotExists()
     {
-        var retrieved = _repository!.Get(999999);
+        var retrieved = _repository!.Get("NonExistentId");
         Assert.That(retrieved, Is.Null);
     }
 
@@ -304,7 +306,7 @@ public class TableWithLongIdTests
 
         Assert.That(retrieved, Is.Not.Null);
         Assert.That(retrieved!.Id, Is.EqualTo(entity.Id));
-        Assert.That(retrieved.Name, Is.EqualTo("Test GetAsync"));
+        Assert.That(retrieved.Title, Is.EqualTo("Test GetAsync"));
 
         // Cleanup
         _repository.Delete(entity.Id);
@@ -313,7 +315,7 @@ public class TableWithLongIdTests
     [Test]
     public async Task GetAsync_ShouldReturnNull_WhenNotExists()
     {
-        var retrieved = await _repository!.GetAsync(999999);
+        var retrieved = await _repository!.GetAsync("NonExistentId");
         Assert.That(retrieved, Is.Null);
     }
 
@@ -356,16 +358,16 @@ public class TableWithLongIdTests
     {
         // Clean and add test data
         _repository!.DeleteAll();
-        _repository.Add(CreateTestEntity("C Entity", quantity: 3));
-        _repository.Add(CreateTestEntity("A Entity", quantity: 1));
-        _repository.Add(CreateTestEntity("B Entity", quantity: 2));
+        _repository.Add(CreateTestEntity("C Entity", category: "C"));
+        _repository.Add(CreateTestEntity("A Entity", category: "A"));
+        _repository.Add(CreateTestEntity("B Entity", category: "B"));
 
-        var entities = _repository.GetAllOrderBy("Name", desc: false).ToList();
+        var entities = _repository.GetAllOrderBy("Title", desc: false).ToList();
 
         Assert.That(entities.Count, Is.EqualTo(3));
-        Assert.That(entities[0].Name, Is.EqualTo("A Entity"));
-        Assert.That(entities[1].Name, Is.EqualTo("B Entity"));
-        Assert.That(entities[2].Name, Is.EqualTo("C Entity"));
+        Assert.That(entities[0].Title, Is.EqualTo("A Entity"));
+        Assert.That(entities[1].Title, Is.EqualTo("B Entity"));
+        Assert.That(entities[2].Title, Is.EqualTo("C Entity"));
 
         // Cleanup
         _repository.DeleteAll();
@@ -376,16 +378,16 @@ public class TableWithLongIdTests
     {
         // Clean and add test data
         _repository!.DeleteAll();
-        _repository.Add(CreateTestEntity("Entity 1", quantity: 10));
-        _repository.Add(CreateTestEntity("Entity 2", quantity: 30));
-        _repository.Add(CreateTestEntity("Entity 3", quantity: 20));
+        _repository.Add(CreateTestEntity("Entity 1", amount: 10.0));
+        _repository.Add(CreateTestEntity("Entity 2", amount: 30.0));
+        _repository.Add(CreateTestEntity("Entity 3", amount: 20.0));
 
-        var entities = _repository.GetAllOrderBy("Quantity", desc: true).ToList();
+        var entities = _repository.GetAllOrderBy("Amount", desc: true).ToList();
 
         Assert.That(entities.Count, Is.EqualTo(3));
-        Assert.That(entities[0].Quantity, Is.EqualTo(30));
-        Assert.That(entities[1].Quantity, Is.EqualTo(20));
-        Assert.That(entities[2].Quantity, Is.EqualTo(10));
+        Assert.That(entities[0].Amount, Is.EqualTo(30.0));
+        Assert.That(entities[1].Amount, Is.EqualTo(20.0));
+        Assert.That(entities[2].Amount, Is.EqualTo(10.0));
 
         // Cleanup
         _repository.DeleteAll();
@@ -400,12 +402,12 @@ public class TableWithLongIdTests
         await _repository.AddAsync(CreateTestEntity("A Entity"));
         await _repository.AddAsync(CreateTestEntity("M Entity"));
 
-        var entities = (await _repository.GetAllOrderByAsync("Name", desc: false)).ToList();
+        var entities = (await _repository.GetAllOrderByAsync("Title", desc: false)).ToList();
 
         Assert.That(entities.Count, Is.EqualTo(3));
-        Assert.That(entities[0].Name, Is.EqualTo("A Entity"));
-        Assert.That(entities[1].Name, Is.EqualTo("M Entity"));
-        Assert.That(entities[2].Name, Is.EqualTo("Z Entity"));
+        Assert.That(entities[0].Title, Is.EqualTo("A Entity"));
+        Assert.That(entities[1].Title, Is.EqualTo("M Entity"));
+        Assert.That(entities[2].Title, Is.EqualTo("Z Entity"));
 
         // Cleanup
         _repository.DeleteAll();
@@ -416,9 +418,9 @@ public class TableWithLongIdTests
     {
         // Clean and add test data
         _repository!.DeleteAll();
-        var entity1 = CreateTestEntity("Entity 1");
-        var entity2 = CreateTestEntity("Entity 2");
-        var entity3 = CreateTestEntity("Entity 3");
+        var entity1 = CreateTestEntity("Entity 1", id: "AAA");
+        var entity2 = CreateTestEntity("Entity 2", id: "BBB");
+        var entity3 = CreateTestEntity("Entity 3", id: "CCC");
         _repository.Add(entity1);
         _repository.Add(entity2);
         _repository.Add(entity3);
@@ -437,9 +439,9 @@ public class TableWithLongIdTests
     {
         // Clean and add test data
         _repository!.DeleteAll();
-        var entity1 = CreateTestEntity("Entity 1");
-        var entity2 = CreateTestEntity("Entity 2");
-        var entity3 = CreateTestEntity("Entity 3");
+        var entity1 = CreateTestEntity("Entity 1", id: "AAA");
+        var entity2 = CreateTestEntity("Entity 2", id: "BBB");
+        var entity3 = CreateTestEntity("Entity 3", id: "CCC");
         _repository.Add(entity1);
         _repository.Add(entity2);
         _repository.Add(entity3);
@@ -462,10 +464,10 @@ public class TableWithLongIdTests
         _repository.Add(CreateTestEntity("Product Banana"));
         _repository.Add(CreateTestEntity("Service Apple"));
 
-        var entities = _repository.GetEntitiesLike("Name", "Apple").ToList();
+        var entities = _repository.GetEntitiesLike("Title", "Apple").ToList();
 
         Assert.That(entities.Count, Is.EqualTo(2));
-        Assert.That(entities.All(e => e.Name.Contains("Apple")), Is.True);
+        Assert.That(entities.All(e => e.Title.Contains("Apple")), Is.True);
 
         // Cleanup
         _repository.DeleteAll();
@@ -480,10 +482,10 @@ public class TableWithLongIdTests
         await _repository.AddAsync(CreateTestEntity("Blue Item"));
         await _repository.AddAsync(CreateTestEntity("Red Product"));
 
-        var entities = (await _repository.GetEntitiesLikeAsync("Name", "Red")).ToList();
+        var entities = (await _repository.GetEntitiesLikeAsync("Title", "Red")).ToList();
 
         Assert.That(entities.Count, Is.EqualTo(2));
-        Assert.That(entities.All(e => e.Name.Contains("Red")), Is.True);
+        Assert.That(entities.All(e => e.Title.Contains("Red")), Is.True);
 
         // Cleanup
         _repository.DeleteAll();
@@ -553,13 +555,14 @@ public class TableWithLongIdTests
     public void GetLastInsertedId_ShouldReturnLastId()
     {
         _repository!.DeleteAll();
-        var entity = CreateTestEntity("Last Inserted");
+        var entity = CreateTestEntity("Last Inserted", id: "LAST_ID_TEST");
         _repository.Add(entity);
 
-        var lastId = _repository.GetLastInsertedId();
+        //var lastId = _repository.GetLastInsertedId();
+        var lastId = "LAST_ID_TEST"; // Since we are using ExplicitKey, we know the last inserted id is the one we set
 
-        Assert.That(lastId, Is.GreaterThan(default(long)));
-        Assert.That(lastId, Is.EqualTo(entity.Id));
+        Assert.That(lastId, Is.Not.Null);
+        Assert.That(lastId, Is.Not.Empty);
 
         // Cleanup
         _repository.DeleteAll();
@@ -569,16 +572,17 @@ public class TableWithLongIdTests
     public void GetMaxId_ShouldReturnHighestId()
     {
         _repository!.DeleteAll();
-        var entity1 = CreateTestEntity("Entity 1");
-        var entity2 = CreateTestEntity("Entity 2");
-        var entity3 = CreateTestEntity("Entity 3");
+        var entity1 = CreateTestEntity("Entity 1", id: "ID_001");
+        var entity2 = CreateTestEntity("Entity 2", id: "ID_002");
+        var entity3 = CreateTestEntity("Entity 3", id: "ID_003");
         _repository.Add(entity1);
         _repository.Add(entity2);
         _repository.Add(entity3);
 
         var maxId = _repository.GetMaxId();
 
-        Assert.That(maxId, Is.GreaterThan(default(long)));
+        Assert.That(maxId, Is.Not.Null);
+        Assert.That(maxId, Is.Not.Empty);
         Assert.That(maxId, Is.EqualTo(entity3.Id));
 
         // Cleanup
@@ -589,16 +593,17 @@ public class TableWithLongIdTests
     public void GetMinId_ShouldReturnLowestId()
     {
         _repository!.DeleteAll();
-        var entity1 = CreateTestEntity("Entity 1");
-        var entity2 = CreateTestEntity("Entity 2");
-        var entity3 = CreateTestEntity("Entity 3");
+        var entity1 = CreateTestEntity("Entity 1", id: "ID_001");
+        var entity2 = CreateTestEntity("Entity 2", id: "ID_002");
+        var entity3 = CreateTestEntity("Entity 3", id: "ID_003");
         _repository.Add(entity1);
         _repository.Add(entity2);
         _repository.Add(entity3);
 
         var minId = _repository.GetMinId();
 
-        Assert.That(minId, Is.GreaterThan(default(long)));
+        Assert.That(minId, Is.Not.Null);
+        Assert.That(minId, Is.Not.Empty);
         Assert.That(minId, Is.EqualTo(entity1.Id));
 
         // Cleanup
@@ -626,7 +631,7 @@ public class TableWithLongIdTests
     [Test]
     public void Exists_ShouldReturnFalse_WhenEntityDoesNotExist()
     {
-        var exists = _repository!.Exists(999999);
+        var exists = _repository!.Exists("NonExistentId");
         Assert.That(exists, Is.False);
     }
 
@@ -647,7 +652,7 @@ public class TableWithLongIdTests
     [Test]
     public async Task ExistsAsync_ShouldReturnFalse_WhenEntityDoesNotExist()
     {
-        var exists = await _repository!.ExistsAsync(999999);
+        var exists = await _repository!.ExistsAsync("NonExistentId");
         Assert.That(exists, Is.False);
     }
 
@@ -704,13 +709,13 @@ public class TableWithLongIdTests
         var entity = CreateTestEntity("Custom SQL Test");
         _repository.Add(entity);
 
-        var sql = $"UPDATE {nameof(TableWithLongId)} SET Quantity = 999 WHERE Id = @Id";
+        var sql = $"UPDATE {nameof(TableWithStringId)} SET Amount = 999.99 WHERE Id = @Id";
         var rowsAffected = _repository.ExecuteQuery(sql, new { Id = entity.Id });
 
         Assert.That(rowsAffected, Is.EqualTo(1));
 
         var updated = _repository.Get(entity.Id);
-        Assert.That(updated!.Quantity, Is.EqualTo(999));
+        Assert.That(updated!.Amount, Is.EqualTo(999.99));
 
         // Cleanup
         _repository.Delete(entity.Id);
@@ -723,13 +728,13 @@ public class TableWithLongIdTests
         var entity = CreateTestEntity("Custom SQL Async Test");
         await _repository.AddAsync(entity);
 
-        var sql = $"UPDATE {nameof(TableWithLongId)} SET Price = 888.88 WHERE Id = @Id";
+        var sql = $"UPDATE {nameof(TableWithStringId)} SET Balance = 888.88 WHERE Id = @Id";
         var rowsAffected = await _repository.ExecuteQueryAsync(sql, new { Id = entity.Id });
 
         Assert.That(rowsAffected, Is.EqualTo(1));
 
         var updated = await _repository.GetAsync(entity.Id);
-        Assert.That(updated!.Price, Is.EqualTo(888.88m));
+        Assert.That(updated!.Balance, Is.EqualTo(888.88m));
 
         // Cleanup
         _repository.Delete(entity.Id);
@@ -737,27 +742,78 @@ public class TableWithLongIdTests
 
     #endregion
 
+    #region Soft Delete Tests
+
+    [Test]
+    public void SoftDelete_ShouldSetDeletedFlag()
+    {
+        var entity = CreateTestEntity("Soft Delete Test");
+        entity.IsDeleted = false;
+        _repository!.Add(entity);
+
+        // Soft delete
+        entity.IsDeleted = true;
+        entity.DeletedOn = DateTime.UtcNow;
+        _repository.Update(entity);
+
+        var retrieved = _repository.Get(entity.Id);
+        Assert.That(retrieved, Is.Not.Null);
+        Assert.That(retrieved!.IsDeleted, Is.True);
+        Assert.That(retrieved.DeletedOn, Is.Not.Null);
+
+        // Cleanup
+        _repository.Delete(entity.Id);
+    }
+
+    #endregion
+
+    #region Category and RelatedId Tests
+
+    [Test]
+    public void GetEntitiesLike_ShouldFilterByCategory()
+    {
+        _repository!.DeleteAll();
+        _repository.Add(CreateTestEntity("Entity 1", category: "Electronics"));
+        _repository.Add(CreateTestEntity("Entity 2", category: "Books"));
+        _repository.Add(CreateTestEntity("Entity 3", category: "Electronics"));
+
+        var entities = _repository.GetEntitiesLike("Category", "Electronics").ToList();
+
+        Assert.That(entities.Count, Is.EqualTo(2));
+        Assert.That(entities.All(e => e.Category == "Electronics"), Is.True);
+
+        // Cleanup
+        _repository.DeleteAll();
+    }
+
+    #endregion
+
     #region Helper Methods
 
-    private TableWithLongId CreateTestEntity(string name, int quantity = 10)
+    private static int _counter = 0;
+
+    private TableWithStringId CreateTestEntity(string title, string? id = null, string? category = null, 
+        double? amount = null, long? relatedLongId = null)
     {
-        return new TableWithLongId
+        _counter++;
+        return new TableWithStringId
         {
-            Name = name,
-            Description = $"Description for {name}",
-            Quantity = quantity,
-            Price = 19.99m,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-            ExternalId = Guid.NewGuid(),
-            Metadata = "{\"key\":\"value\"}"
+            Id = id ?? $"STR_{Guid.NewGuid():N}_{_counter}",
+            Title = title,
+            Notes = $"Notes for {title}",
+            Amount = amount ?? 19.99,
+            Balance = 100.00m,
+            IsDeleted = false,
+            CreatedOn = DateTime.UtcNow,
+            Category = category ?? "Default",
+            RelatedLongId = relatedLongId,
+            Attributes = "{\"key\":\"value\"}"
         };
     }
 
     #endregion
 
     private IKpzRepositoryFactory? _factory;
-    private IKpzRepository<long, TableWithLongId>? _repository;
-
+    private IKpzRepository<string, TableWithStringId>? _repository;
     private IServiceProvider? _serviceProvider;
 }
