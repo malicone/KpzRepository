@@ -1,8 +1,9 @@
 ﻿using Dapper.Contrib.Extensions;
 using KpzRepository.Model;
 
-namespace KpzRepository.SqlServer.Tests.Model;
+namespace KpzRepository.PostgreSql.Tests.Model;
 
+[Table("tracked_table")]
 public class TrackedTable : TrackedEntity<long>
 {
     [Key]

@@ -12,8 +12,6 @@ public static class DependencyInjection
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentNullException(nameof(connectionString));
 
-        //Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
-
         var repoFactoryDescriptor = new ServiceDescriptor(
             typeof(IKpzRepositoryFactory),
             provider => new KpzRepositorySqlServerFactory(connectionString),

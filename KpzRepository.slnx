@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="KpzRepository.PostgreSql.Tests/KpzRepository.PostgreSql.Tests.csproj" Id="53f490fa-b53d-47c2-9fe5-cbc28bc861fe" />
   <Project Path="KpzRepository.PostgreSql/KpzRepository.PostgreSql.csproj" Id="f7f16835-735d-4f10-bbe5-acdb2d400d1f" />
   <Project Path="KpzRepository.SqlServer.Tests/KpzRepository.SqlServer.Tests.csproj" Id="717f84aa-eedb-4871-abea-9921b8133ec5" />
   <Project Path="KpzRepository.SqlServer/KpzRepository.SqlServer.csproj" />

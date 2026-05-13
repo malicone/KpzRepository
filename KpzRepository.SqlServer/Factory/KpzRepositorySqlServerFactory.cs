@@ -6,8 +6,8 @@ using Microsoft.Data.SqlClient;
 
 namespace KpzRepository.SqlServer.Factory;
 
-/// <inheritdoc cref="IKpzRepositoryFactory{TKey, TEntity}"/>
 /// <summary>
+/// <inheritdoc cref="IKpzRepositoryFactory{TKey, TEntity}"/>
 /// Factory class for creating SQL Server repositories.
 /// </summary>
 internal class KpzRepositorySqlServerFactory : IKpzRepositoryFactory

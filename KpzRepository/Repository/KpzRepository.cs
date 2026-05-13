@@ -7,8 +7,12 @@ namespace KpzRepository.Repository;
 
 /// <inheritdoc cref="IKpzRepository{TKey, TEntity}"/>
 /// <summary>
+/// Base (abstract) implementation of the repository. Every entity is mapped to a table in a database.
+/// This class provides basic CRUD operations and some additional methods for working with the database.
 /// This class uses Dapper and Dapper.Contrib.Extensions libraries.
 /// </summary>
+/// <typeparam name="TKey">The type of the primary key.</typeparam>
+/// <typeparam name="TEntity">The type of the entity (entity is mapped to a database table).</typeparam>
 public abstract class KpzRepository<TKey, TEntity> : IDisposable, IKpzRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>, new()
 {
     public KpzRepository(IDbConnection connection)
