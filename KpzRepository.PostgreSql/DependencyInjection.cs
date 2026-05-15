@@ -1,4 +1,6 @@
-﻿using KpzRepository.Factory;
+﻿using Dapper;
+using KpzRepository.Factory;
+using KpzRepository.PostgreSql.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KpzRepository.PostgreSql;
@@ -10,7 +12,7 @@ public static class DependencyInjection
         if(string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentNullException(nameof(connectionString));
 
-        Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+        SqlMapper.AddTypeHandler(new JsonbTypeHandler());
 
         var repoFactoryDescriptor = new ServiceDescriptor(
             typeof(IKpzRepositoryFactory),

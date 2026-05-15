@@ -96,66 +96,9 @@ CREATE INDEX ix_table_with_string_id_category
 CREATE INDEX ix_table_with_string_id_related_long_id 
 	ON table_with_string_id(related_long_id);
 
--- Lookup table (equivalent to SQL Server LookupTable)
-CREATE TABLE lookup_table
-(
-	-- Primary key (BIGINT)
-	id BIGSERIAL PRIMARY KEY,
-
-	-- Fields from LookupEntity
-	name VARCHAR(200) NULL,
-	code VARCHAR(100) NULL,
-	description TEXT NULL,
-	display_order BIGINT NULL,
-	is_active BOOLEAN NULL DEFAULT true
-);
-
--- Create indexes for lookup_table
--- Unique index with partial index (WHERE clause) for non-null codes
-CREATE UNIQUE INDEX ux_lookup_table_code 
-	ON lookup_table(code) 
-	WHERE code IS NOT NULL;
-
-CREATE INDEX ix_lookup_table_display_order 
-	ON lookup_table(display_order);
-
-CREATE INDEX ix_lookup_table_is_active 
-	ON lookup_table(is_active);
-
--- Tracked table (equivalent to SQL Server TrackedTable)
-CREATE TABLE tracked_table
-(
-	-- Primary key
-	id BIGSERIAL PRIMARY KEY,
-
-	-- Timestamps (using TIMESTAMP WITH TIME ZONE for proper timezone handling)
-	created_at TIMESTAMP(7) WITH TIME ZONE NULL DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
-	updated_at TIMESTAMP(7) WITH TIME ZONE NULL,
-	deleted_at TIMESTAMP(7) WITH TIME ZONE NULL,
-
-	-- Audit users
-	created_by VARCHAR(256) NULL,
-	updated_by VARCHAR(256) NULL,
-	deleted_by VARCHAR(256) NULL
-);
-
--- Create indexes for tracked_table
--- Active records (not deleted)
-CREATE INDEX ix_tracked_table_deleted_at 
-	ON tracked_table(deleted_at);
-
--- Audit queries
-CREATE INDEX ix_tracked_table_created_at 
-	ON tracked_table(created_at);
-
-CREATE INDEX ix_tracked_table_updated_at 
-	ON tracked_table(updated_at);
-
 -- Optional: Create comments on tables and columns for documentation
 COMMENT ON TABLE table_with_long_id IS 'Test table with BIGINT primary key';
 COMMENT ON TABLE table_with_string_id IS 'Test table with string primary key';
-COMMENT ON TABLE lookup_table IS 'Lookup table for reference data';
-COMMENT ON TABLE tracked_table IS 'Table with audit tracking fields';
 
 -- Grant permissions (adjust as needed for your environment)
 -- Example: GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO your_test_user;

@@ -2,6 +2,7 @@ using KpzRepository.Factory;
 using KpzRepository.Repository;
 using KpzRepository.PostgreSql.Tests.Model;
 using Microsoft.Extensions.DependencyInjection;
+using KpzRepository.PostgreSql.Utils;
 
 namespace KpzRepository.PostgreSql.Tests;
 
@@ -29,7 +30,7 @@ public class TableWithStringIdTests
         {
             Assert.Fail($"Failed to resolve {nameof(IKpzRepositoryFactory)} from service provider.");
         }
-        _repository = _factory?.GetBaseRepository<string, TableWithStringId>();
+        _repository = _factory?.GetBaseRepository<string, table_with_string_id>();
         _repository?.DeleteAll();// Let's clear the table before we start testing
     }
 
@@ -100,8 +101,8 @@ public class TableWithStringIdTests
     public void GetRepositoryKeyName_ShouldReturnId()
     {
         var keyName = _repository!.GetRepositoryKeyName();
-        TableWithStringId entity = new TableWithStringId();
-        Assert.That(keyName, Is.EqualTo($"{nameof(entity.Id)}"));
+        table_with_string_id entity = new table_with_string_id();
+        Assert.That(keyName, Is.EqualTo($"{nameof(entity.id)}"));
     }
 
     #endregion
@@ -116,12 +117,12 @@ public class TableWithStringIdTests
         var result = _repository!.Add(entity);
 
         Assert.That(result, Is.True);
-        Assert.That(entity.Id, Is.Not.Null);
-        Assert.That(entity.Id, Is.Not.Empty);
+        Assert.That(entity.id, Is.Not.Null);
+        Assert.That(entity.id, Is.Not.Empty);
         Assert.That(_repository.Count(), Is.EqualTo(initialCount + 1));
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     [Test]
@@ -132,18 +133,18 @@ public class TableWithStringIdTests
         var result = await _repository!.AddAsync(entity);
 
         Assert.That(result, Is.True);
-        Assert.That(entity.Id, Is.Not.Null);
-        Assert.That(entity.Id, Is.Not.Empty);
+        Assert.That(entity.id, Is.Not.Null);
+        Assert.That(entity.id, Is.Not.Empty);
         Assert.That(await _repository.CountAsync(), Is.EqualTo(initialCount + 1));
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     [Test]
     public void AddRange_ShouldInsertMultipleEntities()
     {
-        var entities = new List<TableWithStringId>
+        var entities = new List<table_with_string_id>
         {
             CreateTestEntity("Entity 1"),
             CreateTestEntity("Entity 2"),
@@ -156,20 +157,20 @@ public class TableWithStringIdTests
         transaction!.Commit();
 
         Assert.That(insertedCount, Is.EqualTo(3));
-        Assert.That(entities.All(e => string.IsNullOrEmpty(e.Title) == false), Is.True);
+        Assert.That(entities.All(e => string.IsNullOrEmpty(e.title) == false), Is.True);
         Assert.That(_repository.Count(), Is.EqualTo(initialCount + 3));
 
         // Cleanup
         foreach (var entity in entities)
         {
-            _repository.Delete(entity.Id);
+            _repository.Delete(entity.id);
         }
     }
 
     [Test]
     public async Task AddRangeAsync_ShouldInsertMultipleEntities()
     {
-        var entities = new List<TableWithStringId>
+        var entities = new List<table_with_string_id>
         {
             CreateTestEntity("Entity Async 1"),
             CreateTestEntity("Entity Async 2"),
@@ -182,13 +183,13 @@ public class TableWithStringIdTests
         transaction!.Commit();
 
         Assert.That(insertedCount, Is.EqualTo(3));
-        Assert.That(entities.All(e => string.IsNullOrEmpty(e.Title) == false), Is.True);
+        Assert.That(entities.All(e => string.IsNullOrEmpty(e.title) == false), Is.True);
         Assert.That(await _repository.CountAsync(), Is.EqualTo(initialCount + 3));
 
         // Cleanup
         foreach (var entity in entities)
         {
-            _repository.Delete(entity.Id);
+            _repository.Delete(entity.id);
         }
     }
 
@@ -204,18 +205,18 @@ public class TableWithStringIdTests
         _repository!.Add(entity);
 
         // Act
-        entity.Title = "Updated Title";
-        entity.Amount = 100.50;
+        entity.title = "Updated Title";
+        entity.amount = 100.50;
         var result = _repository.Update(entity);
 
         // Assert
         Assert.That(result, Is.True);
-        var updated = _repository.Get(entity.Id);
-        Assert.That(updated!.Title, Is.EqualTo("Updated Title"));
-        Assert.That(updated.Amount, Is.EqualTo(100.50));
+        var updated = _repository.Get(entity.id);
+        Assert.That(updated!.title, Is.EqualTo("Updated Title"));
+        Assert.That(updated.amount, Is.EqualTo(100.50));
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     [Test]
@@ -226,18 +227,18 @@ public class TableWithStringIdTests
         await _repository!.AddAsync(entity);
 
         // Act
-        entity.Title = "Updated Async Title";
-        entity.Balance = 99.99m;
+        entity.title = "Updated Async Title";
+        entity.balance = 99.99m;
         var result = await _repository.UpdateAsync(entity);
 
         // Assert
         Assert.That(result, Is.True);
-        var updated = await _repository.GetAsync(entity.Id);
-        Assert.That(updated!.Title, Is.EqualTo("Updated Async Title"));
-        Assert.That(updated.Balance, Is.EqualTo(99.99m));
+        var updated = await _repository.GetAsync(entity.id);
+        Assert.That(updated!.title, Is.EqualTo("Updated Async Title"));
+        Assert.That(updated.balance, Is.EqualTo(99.99m));
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     #endregion
@@ -250,10 +251,10 @@ public class TableWithStringIdTests
         var entity = CreateTestEntity("To Delete");
         _repository!.Add(entity);
 
-        var result = _repository.Delete(entity.Id);
+        var result = _repository.Delete(entity.id);
 
         Assert.That(result, Is.True);
-        Assert.That(_repository.Exists(entity.Id), Is.False);
+        Assert.That(_repository.Exists(entity.id), Is.False);
     }
 
     [Test]
@@ -279,14 +280,14 @@ public class TableWithStringIdTests
         var entity = CreateTestEntity("Test Get");
         _repository!.Add(entity);
 
-        var retrieved = _repository.Get(entity.Id);
+        var retrieved = _repository.Get(entity.id);
 
         Assert.That(retrieved, Is.Not.Null);
-        Assert.That(retrieved!.Id, Is.EqualTo(entity.Id));
-        Assert.That(retrieved.Title, Is.EqualTo("Test Get"));
+        Assert.That(retrieved!.id, Is.EqualTo(entity.id));
+        Assert.That(retrieved.title, Is.EqualTo("Test Get"));
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     [Test]
@@ -302,14 +303,14 @@ public class TableWithStringIdTests
         var entity = CreateTestEntity("Test GetAsync");
         await _repository!.AddAsync(entity);
 
-        var retrieved = await _repository.GetAsync(entity.Id);
+        var retrieved = await _repository.GetAsync(entity.id);
 
         Assert.That(retrieved, Is.Not.Null);
-        Assert.That(retrieved!.Id, Is.EqualTo(entity.Id));
-        Assert.That(retrieved.Title, Is.EqualTo("Test GetAsync"));
+        Assert.That(retrieved!.id, Is.EqualTo(entity.id));
+        Assert.That(retrieved.title, Is.EqualTo("Test GetAsync"));
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     [Test]
@@ -362,12 +363,12 @@ public class TableWithStringIdTests
         _repository.Add(CreateTestEntity("A Entity", category: "A"));
         _repository.Add(CreateTestEntity("B Entity", category: "B"));
 
-        var entities = _repository.GetAllOrderBy($"{nameof(TableWithStringId.Title)}", desc: false).ToList();
+        var entities = _repository.GetAllOrderBy($"{nameof(table_with_string_id.title)}", desc: false).ToList();
 
         Assert.That(entities.Count, Is.EqualTo(3));
-        Assert.That(entities[0].Title, Is.EqualTo("A Entity"));
-        Assert.That(entities[1].Title, Is.EqualTo("B Entity"));
-        Assert.That(entities[2].Title, Is.EqualTo("C Entity"));
+        Assert.That(entities[0].title, Is.EqualTo("A Entity"));
+        Assert.That(entities[1].title, Is.EqualTo("B Entity"));
+        Assert.That(entities[2].title, Is.EqualTo("C Entity"));
 
         // Cleanup
         _repository.DeleteAll();
@@ -382,12 +383,12 @@ public class TableWithStringIdTests
         _repository.Add(CreateTestEntity("Entity 2", amount: 30.0));
         _repository.Add(CreateTestEntity("Entity 3", amount: 20.0));
 
-        var entities = _repository.GetAllOrderBy($"{nameof(TableWithStringId.Amount)}", desc: true).ToList();
+        var entities = _repository.GetAllOrderBy($"{nameof(table_with_string_id.amount)}", desc: true).ToList();
 
         Assert.That(entities.Count, Is.EqualTo(3));
-        Assert.That(entities[0].Amount, Is.EqualTo(30.0));
-        Assert.That(entities[1].Amount, Is.EqualTo(20.0));
-        Assert.That(entities[2].Amount, Is.EqualTo(10.0));
+        Assert.That(entities[0].amount, Is.EqualTo(30.0));
+        Assert.That(entities[1].amount, Is.EqualTo(20.0));
+        Assert.That(entities[2].amount, Is.EqualTo(10.0));
 
         // Cleanup
         _repository.DeleteAll();
@@ -402,12 +403,12 @@ public class TableWithStringIdTests
         await _repository.AddAsync(CreateTestEntity("A Entity"));
         await _repository.AddAsync(CreateTestEntity("M Entity"));
 
-        var entities = (await _repository.GetAllOrderByAsync($"{nameof(TableWithStringId.Title)}", desc: false)).ToList();
+        var entities = (await _repository.GetAllOrderByAsync($"{nameof(table_with_string_id.title)}", desc: false)).ToList();
 
         Assert.That(entities.Count, Is.EqualTo(3));
-        Assert.That(entities[0].Title, Is.EqualTo("A Entity"));
-        Assert.That(entities[1].Title, Is.EqualTo("M Entity"));
-        Assert.That(entities[2].Title, Is.EqualTo("Z Entity"));
+        Assert.That(entities[0].title, Is.EqualTo("A Entity"));
+        Assert.That(entities[1].title, Is.EqualTo("M Entity"));
+        Assert.That(entities[2].title, Is.EqualTo("Z Entity"));
 
         // Cleanup
         _repository.DeleteAll();
@@ -428,7 +429,7 @@ public class TableWithStringIdTests
         var minEntity = _repository.GetMinEntity();
 
         Assert.That(minEntity, Is.Not.Null);
-        Assert.That(minEntity!.Id, Is.EqualTo(entity1.Id));
+        Assert.That(minEntity!.id, Is.EqualTo(entity1.id));
 
         // Cleanup
         _repository.DeleteAll();
@@ -449,7 +450,7 @@ public class TableWithStringIdTests
         var maxEntity = _repository.GetMaxEntity();
 
         Assert.That(maxEntity, Is.Not.Null);
-        Assert.That(maxEntity!.Id, Is.EqualTo(entity3.Id));
+        Assert.That(maxEntity!.id, Is.EqualTo(entity3.id));
 
         // Cleanup
         _repository.DeleteAll();
@@ -464,10 +465,10 @@ public class TableWithStringIdTests
         _repository.Add(CreateTestEntity("Product Banana"));
         _repository.Add(CreateTestEntity("Service Apple"));
 
-        var entities = _repository.GetEntitiesLike($"{nameof(TableWithStringId.Title)}", "Apple").ToList();
+        var entities = _repository.GetEntitiesLike($"{nameof(table_with_string_id.title)}", "Apple").ToList();
 
         Assert.That(entities.Count, Is.EqualTo(2));
-        Assert.That(entities.All(e => e.Title.Contains("Apple")), Is.True);
+        Assert.That(entities.All(e => e.title.Contains("Apple")), Is.True);
 
         // Cleanup
         _repository.DeleteAll();
@@ -482,10 +483,10 @@ public class TableWithStringIdTests
         await _repository.AddAsync(CreateTestEntity("Blue Item"));
         await _repository.AddAsync(CreateTestEntity("Red Product"));
 
-        var entities = (await _repository.GetEntitiesLikeAsync($"{nameof(TableWithStringId.Title)}", "Red")).ToList();
+        var entities = (await _repository.GetEntitiesLikeAsync($"{nameof(table_with_string_id.title)}", "Red")).ToList();
 
         Assert.That(entities.Count, Is.EqualTo(2));
-        Assert.That(entities.All(e => e.Title.Contains("Red")), Is.True);
+        Assert.That(entities.All(e => e.title.Contains("Red")), Is.True);
 
         // Cleanup
         _repository.DeleteAll();
@@ -583,7 +584,7 @@ public class TableWithStringIdTests
 
         Assert.That(maxId, Is.Not.Null);
         Assert.That(maxId, Is.Not.Empty);
-        Assert.That(maxId, Is.EqualTo(entity3.Id));
+        Assert.That(maxId, Is.EqualTo(entity3.id));
 
         // Cleanup
         _repository.DeleteAll();
@@ -604,7 +605,7 @@ public class TableWithStringIdTests
 
         Assert.That(minId, Is.Not.Null);
         Assert.That(minId, Is.Not.Empty);
-        Assert.That(minId, Is.EqualTo(entity1.Id));
+        Assert.That(minId, Is.EqualTo(entity1.id));
 
         // Cleanup
         _repository.DeleteAll();
@@ -620,12 +621,12 @@ public class TableWithStringIdTests
         var entity = CreateTestEntity("Exists Test");
         _repository!.Add(entity);
 
-        var exists = _repository.Exists(entity.Id);
+        var exists = _repository.Exists(entity.id);
 
         Assert.That(exists, Is.True);
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     [Test]
@@ -641,12 +642,12 @@ public class TableWithStringIdTests
         var entity = CreateTestEntity("ExistsAsync Test");
         await _repository!.AddAsync(entity);
 
-        var exists = await _repository.ExistsAsync(entity.Id);
+        var exists = await _repository.ExistsAsync(entity.id);
 
         Assert.That(exists, Is.True);
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     [Test]
@@ -680,10 +681,10 @@ public class TableWithStringIdTests
         _repository.Add(entity, transaction);
         transaction!.Commit();
 
-        Assert.That(_repository.Exists(entity.Id), Is.True);
+        Assert.That(_repository.Exists(entity.id), Is.True);
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     [Test]
@@ -695,7 +696,7 @@ public class TableWithStringIdTests
         _repository.Add(entity, transaction);
         transaction!.Rollback();
 
-        Assert.That(_repository.Exists(entity.Id), Is.False);
+        Assert.That(_repository.Exists(entity.id), Is.False);
     }
 
     #endregion
@@ -710,15 +711,15 @@ public class TableWithStringIdTests
         _repository.Add(entity);
 
         var sql = "UPDATE table_with_string_id SET amount = 999.99 WHERE id = @Id";
-        var rowsAffected = _repository.ExecuteQuery(sql, new { Id = entity.Id });
+        var rowsAffected = _repository.ExecuteQuery(sql, new { Id = entity.id });
 
         Assert.That(rowsAffected, Is.EqualTo(1));
 
-        var updated = _repository.Get(entity.Id);
-        Assert.That(updated!.Amount, Is.EqualTo(999.99));
+        var updated = _repository.Get(entity.id);
+        Assert.That(updated!.amount, Is.EqualTo(999.99));
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     [Test]
@@ -729,15 +730,15 @@ public class TableWithStringIdTests
         await _repository.AddAsync(entity);
 
         var sql = "UPDATE table_with_string_id SET balance = 888.88 WHERE id = @Id";
-        var rowsAffected = await _repository.ExecuteQueryAsync(sql, new { Id = entity.Id });
+        var rowsAffected = await _repository.ExecuteQueryAsync(sql, new { Id = entity.id });
 
         Assert.That(rowsAffected, Is.EqualTo(1));
 
-        var updated = await _repository.GetAsync(entity.Id);
-        Assert.That(updated!.Balance, Is.EqualTo(888.88m));
+        var updated = await _repository.GetAsync(entity.id);
+        Assert.That(updated!.balance, Is.EqualTo(888.88m));
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     #endregion
@@ -748,21 +749,21 @@ public class TableWithStringIdTests
     public void SoftDelete_ShouldSetDeletedFlag()
     {
         var entity = CreateTestEntity("Soft Delete Test");
-        entity.IsDeleted = false;
+        entity.is_deleted = false;
         _repository!.Add(entity);
 
         // Soft delete
-        entity.IsDeleted = true;
-        entity.DeletedOn = DateTime.UtcNow;
+        entity.is_deleted = true;
+        entity.deleted_on = DateTime.UtcNow;
         _repository.Update(entity);
 
-        var retrieved = _repository.Get(entity.Id);
+        var retrieved = _repository.Get(entity.id);
         Assert.That(retrieved, Is.Not.Null);
-        Assert.That(retrieved!.IsDeleted, Is.True);
-        Assert.That(retrieved.DeletedOn, Is.Not.Null);
+        Assert.That(retrieved!.is_deleted, Is.True);
+        Assert.That(retrieved.deleted_on, Is.Not.Null);
 
         // Cleanup
-        _repository.Delete(entity.Id);
+        _repository.Delete(entity.id);
     }
 
     #endregion
@@ -777,10 +778,10 @@ public class TableWithStringIdTests
         _repository.Add(CreateTestEntity("Entity 2", category: "Books"));
         _repository.Add(CreateTestEntity("Entity 3", category: "Electronics"));
 
-        var entities = _repository.GetEntitiesLike($"{nameof(TableWithStringId.Category)}", "Electronics").ToList();
+        var entities = _repository.GetEntitiesLike($"{nameof(table_with_string_id.category)}", "Electronics").ToList();
 
         Assert.That(entities.Count, Is.EqualTo(2));
-        Assert.That(entities.All(e => e.Category == "Electronics"), Is.True);
+        Assert.That(entities.All(e => e.category == "Electronics"), Is.True);
 
         // Cleanup
         _repository.DeleteAll();
@@ -792,28 +793,28 @@ public class TableWithStringIdTests
 
     private static int _counter = 0;
 
-    private TableWithStringId CreateTestEntity(string title, string? id = null, string? category = null, 
+    private table_with_string_id CreateTestEntity(string title, string? id = null, string? category = null, 
         double? amount = null, long? relatedLongId = null)
     {
         _counter++;
-        return new TableWithStringId
+        return new table_with_string_id
         {
-            Id = id ?? $"STR_{Guid.NewGuid():N}_{_counter}",
-            Title = title,
-            Notes = $"Notes for {title}",
-            Amount = amount ?? 19.99,
-            Balance = 100.00m,
-            IsDeleted = false,
-            CreatedOn = DateTime.UtcNow,
-            Category = category ?? "Default",
-            RelatedLongId = relatedLongId,
-            Attributes = "{\"key\":\"value\"}"
+            id = id ?? $"STR_{Guid.NewGuid():N}_{_counter}",
+            title = title,
+            notes = $"Notes for {title}",
+            amount = amount ?? 19.99,
+            balance = 100.00m,
+            is_deleted = false,
+            created_on = DateTime.UtcNow,
+            category = category ?? "Default",
+            related_long_id = relatedLongId,
+            attributes = new JsonbValue("{\"key\":\"value\"}")
         };
     }
 
     #endregion
 
     private IKpzRepositoryFactory? _factory;
-    private IKpzRepository<string, TableWithStringId>? _repository;
+    private IKpzRepository<string, table_with_string_id>? _repository;
     private IServiceProvider? _serviceProvider;
 }
