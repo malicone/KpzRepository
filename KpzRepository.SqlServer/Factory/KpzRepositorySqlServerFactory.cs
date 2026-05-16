@@ -10,7 +10,7 @@ namespace KpzRepository.SqlServer.Factory;
 /// <inheritdoc cref="IKpzRepositoryFactory{TKey, TEntity}"/>
 /// Factory class for creating SQL Server repositories.
 /// </summary>
-internal class KpzRepositorySqlServerFactory : IKpzRepositoryFactory
+public class KpzRepositorySqlServerFactory : IKpzRepositoryFactory
 {
     public KpzRepositorySqlServerFactory(string connectionString)
     {

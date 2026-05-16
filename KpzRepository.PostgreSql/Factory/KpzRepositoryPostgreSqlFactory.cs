@@ -10,7 +10,7 @@ namespace KpzRepository.PostgreSql.Factory;
 /// <inheritdoc cref="IKpzRepositoryFactory{TKey, TEntity}"/>
 /// Factory class for creating PostgreSQL repositories.
 /// </summary>
-internal class KpzRepositoryPostgreSqlFactory : IKpzRepositoryFactory
+public class KpzRepositoryPostgreSqlFactory : IKpzRepositoryFactory
 {
     public KpzRepositoryPostgreSqlFactory(string connectionString)
     {
