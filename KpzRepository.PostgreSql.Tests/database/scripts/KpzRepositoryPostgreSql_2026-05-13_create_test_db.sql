@@ -23,8 +23,6 @@ CREATE DATABASE kpz_repository_postgresql_test
 -- Drop tables if they already exist
 DROP TABLE IF EXISTS table_with_long_id CASCADE;
 DROP TABLE IF EXISTS table_with_string_id CASCADE;
-DROP TABLE IF EXISTS lookup_table CASCADE;
-DROP TABLE IF EXISTS tracked_table CASCADE;
 
 -- Table with BIGINT primary key (equivalent to SQL Server BIGINT IDENTITY)
 CREATE TABLE table_with_long_id

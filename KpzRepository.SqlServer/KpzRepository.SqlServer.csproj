@@ -4,19 +4,19 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyTitle>KpzRepository.SqlServer</AssemblyTitle>
+    <AssemblyTitle></AssemblyTitle>
     <ApplicationIcon>KpzRepository_lib_icon.ico</ApplicationIcon>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Repository pattern implementation for MS SQL Server</Title>
-    <Authors>maxim.mihaluk</Authors>
+    <Authors>Maxim Mihaluk</Authors>
     <Description>Repository pattern implementation for MS SQL Server</Description>
-    <Copyright>maxim.mihaluk</Copyright>
+    <Copyright>Maxim Mihaluk</Copyright>
     <PackageIcon>KpzRepository_lib_icon.png</PackageIcon>
     <PackageProjectUrl>kpzrepository.com</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/malicone/KpzRepository</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>repository-pattern;database;sqlserver;postgresql;sqlite</PackageTags>
+    <PackageTags>repository-pattern;database;sqlserver</PackageTags>
     <PackageReleaseNotes>Initial build</PackageReleaseNotes>
   </PropertyGroup>
 

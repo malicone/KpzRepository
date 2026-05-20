@@ -4,7 +4,25 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>KpzRepository_lib_icon.ico</ApplicationIcon>
+    <Description>Repository pattern implementation for SQLite</Description>
+    <Title>KpzRepository.Sqlite</Title>
+    <Authors>Maxim Mihaluk</Authors>
+    <Copyright>Maxim Mihaluk</Copyright>
+    <PackageProjectUrl>kpzrepository.com</PackageProjectUrl>
+    <PackageIcon>KpzRepository_lib_icon.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="KpzRepository_lib_icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\images\KpzRepository_lib_icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.8" />
