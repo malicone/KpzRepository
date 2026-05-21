@@ -4,7 +4,32 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>KpzRepository_lib_icon.ico</ApplicationIcon>
+    <Title>KpzRepository.PostgreSql</Title>
+    <Description>Repository pattern implementation for PostgreSql</Description>
+    <Copyright>Maxim Mihaluk</Copyright>
+    <PackageProjectUrl>kpzrepository.com</PackageProjectUrl>
+    <PackageIcon>KpzRepository_lib_icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/malicone/KpzRepository</RepositoryUrl>
+    <PackageTags>repository-pattern;database;postgresql</PackageTags>
+    <PackageReleaseNotes>Initial build</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="KpzRepository_lib_icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\images\KpzRepository_lib_icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Npgsql" Version="10.0.2" />

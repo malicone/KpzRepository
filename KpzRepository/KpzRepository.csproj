@@ -4,7 +4,33 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>KpzRepository_lib_icon.ico</ApplicationIcon>
+    <PackageIcon>KpzRepository_lib_icon.png</PackageIcon>
+    <Title>KpzRepository</Title>
+    <Authors>Maxim Mihaluk</Authors>
+    <Description>Repository pattern implementation</Description>
+    <Copyright>Maxim Mihaluk</Copyright>
+    <PackageProjectUrl>kpzrepository.com</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/malicone/KpzRepository</RepositoryUrl>
+    <PackageTags>repository-pattern;database;sqlserver;postgresql;sqlite</PackageTags>
+    <PackageReleaseNotes>Initial build</PackageReleaseNotes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="KpzRepository_lib_icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\images\KpzRepository_lib_icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.72" />

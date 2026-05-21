@@ -11,6 +11,10 @@
     <Copyright>Maxim Mihaluk</Copyright>
     <PackageProjectUrl>kpzrepository.com</PackageProjectUrl>
     <PackageIcon>KpzRepository_lib_icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/malicone/KpzRepository</RepositoryUrl>
+    <PackageTags>repository-pattern;database;sqlite</PackageTags>
+    <PackageReleaseNotes>Initial build</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +23,10 @@
 
   <ItemGroup>
     <None Include="..\images\KpzRepository_lib_icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
