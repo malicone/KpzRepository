@@ -8,13 +8,14 @@
     <PackageIcon>KpzRepository_lib_icon.png</PackageIcon>
     <Title>KpzRepository</Title>
     <Authors>Maxim Mihaluk</Authors>
-    <Description>Repository pattern implementation</Description>
+    <Description>A lightweight and flexible repository pattern implementation for .NET 8, providing a unified interface for database operations across SQL Server, PostgreSQL, and SQLite. Install specific database provider you need - KpzRepository.SqlServer, KpzRepository.Sqlite and so on. The core package KpzRepository is included automatically.</Description>
     <Copyright>Maxim Mihaluk</Copyright>
-    <PackageProjectUrl>kpzrepository.com</PackageProjectUrl>
+    <PackageProjectUrl>https://kpzrepository.com</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/malicone/KpzRepository</RepositoryUrl>
     <PackageTags>repository-pattern;database;sqlserver;postgresql;sqlite</PackageTags>
     <PackageReleaseNotes>Initial build</PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +23,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="KpzRepository_lib_icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </EmbeddedResource>
     <None Include="..\images\KpzRepository_lib_icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -36,6 +49,13 @@
     <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
     <PackageReference Include="System.Reflection" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="KpzRepository_lib_icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,14 +1,13 @@
-# KpzRepository
+# KpzRepository.SqlServer
 
 ![KpzRepository](../images/KpzRepository_lib_icon.png)
 
-A lightweight and flexible repository pattern implementation for .NET 8, providing a unified interface for database operations across SQL Server, PostgreSQL, and SQLite. Built on top of Dapper and Dapper.Contrib, KpzRepository simplifies data access while maintaining performance and flexibility.
+A lightweight and flexible repository pattern implementation for .NET 8, providing a unified interface for database operations across SQL Server. Built on top of Dapper and Dapper.Contrib, KpzRepository simplifies data access while maintaining performance and flexibility.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-- [PostgreSQL usage](#postgresql-usage)
 - [Best Practices](#best-practices)
 - [Entity Attributes](#entity-attributes)
 - [Repository Interface Overview](#repository-interface-overview)
@@ -26,12 +25,9 @@ Install only the database provider you need - the core package **KpzRepository**
 ```bash
 # Choose your database provider:
 dotnet add package KpzRepository.SqlServer
-dotnet add package KpzRepository.PostgreSql
-dotnet add package KpzRepository.Sqlite
 ```
 
 ## Quick Start
-### For SQL Server
 
 ### 1. Define Your Entity
 
@@ -286,51 +282,6 @@ finally
 {
     transaction.Dispose();
 }
-```
-
-## PostgreSQL usage
-
-### ⚠️ Important: snake_case is Required for PostgreSQL
-
-**Dapper.Contrib cannot work correctly with PascalCase/camelCase property names in PostgreSQL.** PostgreSQL treats unquoted identifiers as lowercase, which causes mismatches when Dapper.Contrib tries to map PascalCase properties to lowercase columns.
-
-### Entity Declaration with snake_case
-
-```csharp
-using Dapper.Contrib.Extensions;
-using KpzRepository.Model;
-
-[Table("user_profiles")]  // Table name in snake_case
-public class UserProfile : BaseEntity<long>
-{
-    [Key]
-    public long id { get; set; }  // snake_case properties to match PostgreSQL columns
-
-    public string user_name { get; set; } = null!;
-    public string email_address { get; set; } = null!;
-    public string? phone_number { get; set; }
-    public DateTime created_at { get; set; }
-    public DateTime? updated_at { get; set; }
-    public bool is_active { get; set; }
-
-    // PostgreSQL specific: JSONB support
-    public string? preferences { get; set; }  // Store JSON data as JSONB
-}
-```
-
-### Corresponding PostgreSQL Table
-
-```sql
-CREATE TABLE user_profiles (
-    id BIGSERIAL PRIMARY KEY,
-    user_name VARCHAR(100) NOT NULL,
-    email_address VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(20),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP,
-    is_active BOOLEAN NOT NULL DEFAULT true,
-    preferences JSONB
-);
 ```
 
 ## Best Practices

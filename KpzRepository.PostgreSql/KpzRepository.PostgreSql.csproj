@@ -6,14 +6,15 @@
     <Nullable>enable</Nullable>
     <ApplicationIcon>KpzRepository_lib_icon.ico</ApplicationIcon>
     <Title>KpzRepository.PostgreSql</Title>
-    <Description>Repository pattern implementation for PostgreSql</Description>
+    <Description>A lightweight and flexible repository pattern implementation for .NET 8, providing a unified interface for database operations across PostgreSQL.</Description>
     <Copyright>Maxim Mihaluk</Copyright>
-    <PackageProjectUrl>kpzrepository.com</PackageProjectUrl>
+    <PackageProjectUrl>https://kpzrepository.com</PackageProjectUrl>
     <PackageIcon>KpzRepository_lib_icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/malicone/KpzRepository</RepositoryUrl>
     <PackageTags>repository-pattern;database;postgresql</PackageTags>
     <PackageReleaseNotes>Initial build</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +26,7 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Include="..\README.md">
+    <None Include="..\LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
@@ -37,6 +38,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KpzRepository\KpzRepository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

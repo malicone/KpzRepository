@@ -1,19 +1,18 @@
-# KpzRepository
+# KpzRepository.Sqlite
 
 ![KpzRepository](../images/KpzRepository_lib_icon.png)
 
-A lightweight and flexible repository pattern implementation for .NET 8, providing a unified interface for database operations across SQL Server, PostgreSQL, and SQLite. Built on top of Dapper and Dapper.Contrib, KpzRepository simplifies data access while maintaining performance and flexibility.
+A lightweight and flexible repository pattern implementation for .NET 8, providing a unified interface for database operations with SQLite. Built on top of Dapper and Dapper.Contrib, KpzRepository simplifies data access while maintaining performance and flexibility.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-- [PostgreSQL usage](#postgresql-usage)
 - [Best Practices](#best-practices)
 - [Entity Attributes](#entity-attributes)
 - [Repository Interface Overview](#repository-interface-overview)
 - [Extending Repository with Custom Methods](#extending-repository-with-custom-methods)
-- [Implementing Custom Database Provider](#implementing-custom-database-provider)
+- [Implementing Custom Database Provider](#implementing-custom-database-provider) 
 - [Contributing](#contributing)
 - [License](#license)
 - [Links](#links)
@@ -24,36 +23,57 @@ A lightweight and flexible repository pattern implementation for .NET 8, providi
 Install only the database provider you need - the core package **KpzRepository** is included automatically:
 
 ```bash
-# Choose your database provider:
-dotnet add package KpzRepository.SqlServer
-dotnet add package KpzRepository.PostgreSql
 dotnet add package KpzRepository.Sqlite
 ```
 
 ## Quick Start
-### For SQL Server
+
+### ⚠️ Important: snake_case is Recommended for SQLite
+
+While SQLite is case-insensitive by default, **using snake_case is strongly recommended** for consistency with database conventions and to avoid potential mapping issues with Dapper.Contrib. This approach ensures compatibility and follows SQLite best practices.
 
 ### 1. Define Your Entity
 
-Create a class that inherits from `BaseEntity<TKey>`:
+Create a class that inherits from `BaseEntity<TKey>` with **snake_case properties**:
 
 ```csharp
 using Dapper.Contrib.Extensions;
 using KpzRepository.Model;
 
-[Table("Products")]// You can omit this if your class name matches the table name (for example, "Product" class would map to "Product" table).
+[Table("products")]  // snake_case table name
 public class Product : BaseEntity<long>
 {
-    [Key]// You need to specify [Key] for auto-incrementing primary keys (int, long). For string or Guid keys, use [ExplicitKey] and set the value manually.
-    public long Id { get; set; }
+    [Key]  // You need to specify [Key] for auto-incrementing primary keys (INTEGER PRIMARY KEY)
+    public long id { get; set; }  // snake_case property names
 
-    public string Name { get; set; } = null!;
-    public string? Description { get; set; }
-    public decimal Price { get; set; }
-    public int Quantity { get; set; }
-    public bool IsActive { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public string name { get; set; } = null!;
+    public string? description { get; set; }
+    public decimal price { get; set; }
+    public int quantity { get; set; }
+    public bool is_active { get; set; }
+    public DateTime created_at { get; set; }
+
+    // SQLite-specific: JSON support (stored as TEXT)
+    public string? metadata { get; set; }  // Store JSON data as TEXT
 }
+```
+
+**Corresponding SQLite Table:**
+
+```sql
+CREATE TABLE products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    price REAL NOT NULL,
+    quantity INTEGER NOT NULL,
+    is_active INTEGER NOT NULL DEFAULT 1,  -- SQLite uses INTEGER for BOOLEAN (0 = false, 1 = true)
+    created_at TEXT NOT NULL,  -- Store as ISO8601 string: YYYY-MM-DD HH:MM:SS
+    metadata TEXT  -- Store JSON as TEXT
+);
+
+CREATE INDEX idx_products_name ON products(name);
+CREATE INDEX idx_products_is_active ON products(is_active);
 ```
 
 ### 2. Create Repository Instance
@@ -63,11 +83,11 @@ public class Product : BaseEntity<long>
 ```csharp
 using KpzRepository.Factory;
 using KpzRepository.Repository;
-using KpzRepository.SqlServer.Factory;
+using KpzRepository.Sqlite.Factory;
 
 // Create factory
-string connectionString = "Server=localhost;Database=MyDb;Trusted_Connection=True;";
-IKpzRepositoryFactory factory = new KpzRepositorySqlServerFactory(connectionString);
+string connectionString = "Data Source=myapp.db;Cache=Shared";
+IKpzRepositoryFactory factory = new KpzRepositorySqliteFactory(connectionString);
 
 // Get repository for your entity
 IKpzRepository<long, Product> repository = factory.GetBaseRepository<long, Product>();
@@ -75,30 +95,31 @@ IKpzRepository<long, Product> repository = factory.GetBaseRepository<long, Produ
 // Add a product
 var product = new Product
 {
-    Name = "Laptop",
-    Description = "High-performance laptop",
-    Price = 999.99m,
-    Quantity = 50,
-    IsActive = true,
-    CreatedAt = DateTime.UtcNow
+    name = "Laptop",
+    description = "High-performance laptop",
+    price = 999.99m,
+    quantity = 50,
+    is_active = true,
+    created_at = DateTime.UtcNow,
+    metadata = "{\"brand\": \"Dell\", \"warranty\": \"2 years\"}"
 };
 
 repository.Add(product);
-Console.WriteLine($"Product added with ID: {product.Id}");
+Console.WriteLine($"Product added with ID: {product.id}");
 
 // Get all products
 var products = repository.GetAll();
 foreach (var p in products)
 {
-    Console.WriteLine($"{p.Name} - ${p.Price}");
+    Console.WriteLine($"{p.name} - ${p.price}");
 }
 
 // Update product
-product.Price = 899.99m;
+product.price = 899.99m;
 repository.Update(product);
 
 // Delete product
-repository.Delete(product.Id);
+repository.Delete(product.id);
 
 // Cleanup
 repository.Dispose();
@@ -114,8 +135,8 @@ using KpzRepository.Repository;
 
 // Configure services
 var services = new ServiceCollection();
-string connectionString = "Server=localhost;Database=MyDb;Trusted_Connection=True;";
-services.AddKpzRepositorySqlServerFactory(connectionString);
+string connectionString = "Data Source=myapp.db;Cache=Shared";
+services.AddKpzRepositorySqliteFactory(connectionString);
 var serviceProvider = services.BuildServiceProvider();
 
 // Resolve factory and create repository
@@ -125,18 +146,18 @@ var repository = factory.GetBaseRepository<long, Product>();
 // Use repository
 var product = new Product
 {
-    Name = "Smartphone",
-    Price = 699.99m,
-    Quantity = 100,
-    IsActive = true,
-    CreatedAt = DateTime.UtcNow
+    name = "Smartphone",
+    price = 699.99m,
+    quantity = 100,
+    is_active = true,
+    created_at = DateTime.UtcNow
 };
 
 await repository.AddAsync(product);
 
 // Get product by ID
-var retrieved = await repository.GetAsync(product.Id);
-Console.WriteLine($"Retrieved: {retrieved?.Name}");
+var retrieved = await repository.GetAsync(product.id);
+Console.WriteLine($"Retrieved: {retrieved?.name}");
 
 // Cleanup
 repository.Dispose();
@@ -153,11 +174,11 @@ var productAsync = await repository.GetAsync(1);
 var allProducts = repository.GetAll();
 var allProductsAsync = await repository.GetAllAsync();
 
-// Get all with ordering
-var orderedProducts = repository.GetAllOrderBy("Price", desc: true);
+// Get all with ordering (use snake_case column names)
+var orderedProducts = repository.GetAllOrderBy("price", desc: true);
 
-// Search with LIKE
-var searchResults = repository.GetEntitiesLike("Name", "Laptop");
+// Search with LIKE (use snake_case column names)
+var searchResults = repository.GetEntitiesLike("name", "Laptop");
 
 // Count
 long count = repository.Count();
@@ -189,7 +210,7 @@ repository.DeleteAll();
 
 // Execute custom SQL
 int rowsAffected = repository.ExecuteQuery(
-    "UPDATE Products SET IsActive = 0 WHERE Price > @MaxPrice",
+    "UPDATE products SET is_active = 0 WHERE price > @MaxPrice",
     new { MaxPrice = 1000 }
 );
 ```
@@ -204,19 +225,36 @@ For entities with string-based primary keys (like GUIDs, custom codes, or natura
 using Dapper.Contrib.Extensions;
 using KpzRepository.Model;
 
-[Table("Sessions")]
+[Table("sessions")]
 public class Session : BaseEntity<string>
 {
-    [ExplicitKey]  // Use ExplicitKey for string/Guid primary keys
-    public string Id { get; set; } = null!;
+    [ExplicitKey]  // Use ExplicitKey for string primary keys
+    public string id { get; set; } = null!;
 
-    public string UserId { get; set; } = null!;
-    public DateTime CreatedAt { get; set; }
-    public DateTime ExpiresAt { get; set; }
-    public bool IsActive { get; set; }
-    public string? IpAddress { get; set; }
-    public string? UserAgent { get; set; }
+    public string user_id { get; set; } = null!;
+    public DateTime created_at { get; set; }
+    public DateTime expires_at { get; set; }
+    public bool is_active { get; set; }
+    public string? ip_address { get; set; }
+    public string? user_agent { get; set; }
 }
+```
+
+**Corresponding SQLite Table:**
+
+```sql
+CREATE TABLE sessions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    ip_address TEXT,
+    user_agent TEXT
+);
+
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX idx_sessions_expires_at ON sessions(expires_at);
 ```
 
 #### Create and Use Repository
@@ -225,38 +263,38 @@ public class Session : BaseEntity<string>
 // Get repository for string-based entity
 IKpzRepository<string, Session> sessionRepository = factory.GetBaseRepository<string, Session>();
 
-// Create new session - MUST set the Id manually
+// Create new session - MUST set the id manually
 var session = new Session
 {
-    Id = Guid.NewGuid().ToString("N"),  // Generate unique ID
-    UserId = "user_12345",
-    CreatedAt = DateTime.UtcNow,
-    ExpiresAt = DateTime.UtcNow.AddHours(24),
-    IsActive = true,
-    IpAddress = "192.168.1.100",
-    UserAgent = "Mozilla/5.0..."
+    id = Guid.NewGuid().ToString("N"),  // Generate unique ID
+    user_id = "user_12345",
+    created_at = DateTime.UtcNow,
+    expires_at = DateTime.UtcNow.AddHours(24),
+    is_active = true,
+    ip_address = "192.168.1.100",
+    user_agent = "Mozilla/5.0..."
 };
 
 // Add session
 sessionRepository.Add(session);
-Console.WriteLine($"Session created with ID: {session.Id}");
+Console.WriteLine($"Session created with ID: {session.id}");
 
 // Get session by string ID
-var retrievedSession = sessionRepository.Get(session.Id);
+var retrievedSession = sessionRepository.Get(session.id);
 if (retrievedSession != null)
 {
-    Console.WriteLine($"Retrieved session for user: {retrievedSession.UserId}");
+    Console.WriteLine($"Retrieved session for user: {retrievedSession.user_id}");
 }
 ```
 
 #### Important Notes for String Primary Keys
 
-1. **Always Set ID Manually** - Unlike auto-increment keys, you must set the `Id` property before calling `Add()`
+1. **Always Set ID Manually** - Unlike auto-increment keys, you must set the `id` property before calling `Add()`
 2. **Use [ExplicitKey]** - Required attribute for non-auto-increment keys
 3. **Ensure Uniqueness** - Your ID generation logic must guarantee unique values
 4. **Consider Performance** - String keys are slower than integer keys for indexing
-5. **Max Length** - Define appropriate column length in database (e.g., `VARCHAR(50)`)
-6. **Collation** - Be aware of case-sensitivity based on database collation settings
+5. **SQLite TEXT Type** - String keys use TEXT type in SQLite
+6. **Case Sensitivity** - SQLite is case-insensitive by default for TEXT comparisons
 
 ### 5. Transaction Management
 
@@ -288,87 +326,60 @@ finally
 }
 ```
 
-## PostgreSQL usage
-
-### ⚠️ Important: snake_case is Required for PostgreSQL
-
-**Dapper.Contrib cannot work correctly with PascalCase/camelCase property names in PostgreSQL.** PostgreSQL treats unquoted identifiers as lowercase, which causes mismatches when Dapper.Contrib tries to map PascalCase properties to lowercase columns.
-
-### Entity Declaration with snake_case
-
-```csharp
-using Dapper.Contrib.Extensions;
-using KpzRepository.Model;
-
-[Table("user_profiles")]  // Table name in snake_case
-public class UserProfile : BaseEntity<long>
-{
-    [Key]
-    public long id { get; set; }  // snake_case properties to match PostgreSQL columns
-
-    public string user_name { get; set; } = null!;
-    public string email_address { get; set; } = null!;
-    public string? phone_number { get; set; }
-    public DateTime created_at { get; set; }
-    public DateTime? updated_at { get; set; }
-    public bool is_active { get; set; }
-
-    // PostgreSQL specific: JSONB support
-    public string? preferences { get; set; }  // Store JSON data as JSONB
-}
-```
-
-### Corresponding PostgreSQL Table
-
-```sql
-CREATE TABLE user_profiles (
-    id BIGSERIAL PRIMARY KEY,
-    user_name VARCHAR(100) NOT NULL,
-    email_address VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(20),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP,
-    is_active BOOLEAN NOT NULL DEFAULT true,
-    preferences JSONB
-);
-```
-
 ## Best Practices
 
-1. **Use Transactions for Batch Operations** - When adding or updating multiple entities, always use transactions to ensure data consistency and improve performance.
+1. **Use snake_case for Consistency** - While SQLite is case-insensitive, snake_case follows database conventions and ensures compatibility with Dapper.Contrib.
 
-2. **Dispose Resources** - Always dispose repositories and transactions when done:
+2. **Use Transactions for Batch Operations** - When adding or updating multiple entities, always use transactions to ensure data consistency and improve performance.
+
+3. **Dispose Resources** - Always dispose repositories and transactions when done:
    ```csharp
    using var repository = factory.GetBaseRepository<long, Product>();
    // Use repository
    ```
 
-3. **Async/Await** - Use async methods for I/O-bound operations:
+4. **Async/Await** - Use async methods for I/O-bound operations:
    ```csharp
    await repository.AddAsync(entity);
    var entities = await repository.GetAllAsync();
    ```
 
-4. **Connection Management** - The repository manages connections automatically, but you can manually control them if needed:
+5. **Connection Management** - The repository manages connections automatically, but you can manually control them if needed:
    ```csharp
    repository.OpenConnection();
    // Perform operations
    repository.CloseConnection();
    ```
 
-5. **Custom Queries** - Use `ExecuteQuery` for custom SQL when needed:
+6. **Custom Queries** - Use `ExecuteQuery` for custom SQL when needed:
    ```csharp
-   var sql = "DELETE FROM Products WHERE CreatedAt < @Date";
-   repository.ExecuteQuery(sql, new { Date = DateTime.UtcNow.AddYears(-1) });
+   var sql = "DELETE FROM products WHERE created_at < @Date";
+   repository.ExecuteQuery(sql, new { Date = DateTime.UtcNow.AddYears(-1).ToString("yyyy-MM-dd HH:mm:ss") });
    ```
+
+7. **Boolean Values** - SQLite stores booleans as INTEGER (0 = false, 1 = true). Dapper handles this automatically.
+
+8. **Date/Time Handling** - SQLite stores dates as TEXT in ISO8601 format. Use `DateTime` in C# and Dapper will handle conversion:
+   ```csharp
+   created_at = DateTime.UtcNow  // Stored as "YYYY-MM-DD HH:MM:SS"
+   ```
+
+9. **JSON Support** - Store JSON as TEXT columns:
+   ```csharp
+   public string? metadata { get; set; }  // Maps to TEXT column
+   ```
+
+10. **Use Cache=Shared** - For multi-threaded access, use `Cache=Shared` in the connection string.
+
+11. **Create Indexes** - Add indexes for frequently queried columns to improve performance.
 
 ## Entity Attributes
 
-- **`[Table("table_name")]`** - Specify custom table name
-- **`[Key]`** - Auto-increment primary key (int, long)
-- **`[ExplicitKey]`** - Manual primary key (string, Guid or int incremented manually)
+- **`[Table("table_name")]`** - Specify custom table name (use snake_case)
+- **`[Key]`** - Auto-increment primary key (INTEGER PRIMARY KEY AUTOINCREMENT)
+- **`[ExplicitKey]`** - Manual primary key (TEXT or manually incremented INTEGER)
 - **`[Write(false)]`** - Exclude property from INSERT/UPDATE operations
-- **`[Computed]`** - Exclude from INSERT/UPDATE (for computed columns)
+- **`[Computed]`** - Exclude from INSERT/UPDATE (for computed/generated columns)
 
 ## Repository Interface Overview
 
@@ -412,7 +423,7 @@ The `IKpzRepository<TKey, TEntity>` interface provides:
 
 You can extend repositories with custom domain-specific methods. This is useful when you need specialized queries or business logic that goes beyond basic CRUD operations.
 
-This approach extends the database-specific implementation (e.g., `KpzRepositorySqlServer`), allowing you to add custom methods while maintaining all base functionality.
+This approach extends the database-specific implementation (`KpzRepositorySqlite`), allowing you to add custom methods while maintaining all base functionality.
 
 **Step 1: Create Custom Repository Interface**
 
@@ -454,15 +465,16 @@ public interface IOrderRepository : IKpzRepository<long, Order>
 ```csharp
 using Dapper;
 using KpzRepository.Model;
-using KpzRepository.SqlServer.Repository;
+using KpzRepository.Sqlite.Repository;
 using System.Data;
 
 namespace MyApp.Repositories;
 
 /// <summary>
-/// Custom SQL Server repository for Order entity with specialized methods.
+/// Custom SQLite repository for Order entity with specialized methods.
+/// Note: All SQL queries use snake_case column names to match SQLite conventions.
 /// </summary>
-public class OrderRepository : KpzRepositorySqlServer<long, Order>, IOrderRepository
+public class OrderRepository : KpzRepositorySqlite<long, Order>, IOrderRepository
 {
     public OrderRepository(IDbConnection connection) : base(connection)
     {
@@ -473,10 +485,10 @@ public class OrderRepository : KpzRepositorySqlServer<long, Order>, IOrderReposi
         if (OpenConnection())
         {
             var sql = @"
-                SELECT * FROM Orders 
-                WHERE (@DateFrom IS NULL OR OrderDate >= @DateFrom)
-                  AND (@DateTo IS NULL OR OrderDate <= @DateTo)
-                ORDER BY OrderDate DESC";
+                SELECT * FROM orders 
+                WHERE (@DateFrom IS NULL OR order_date >= @DateFrom)
+                  AND (@DateTo IS NULL OR order_date <= @DateTo)
+                ORDER BY order_date DESC";
 
             return Connection!.Query<Order>(sql, new { DateFrom = dateFrom, DateTo = dateTo }, transaction);
         }
@@ -488,9 +500,9 @@ public class OrderRepository : KpzRepositorySqlServer<long, Order>, IOrderReposi
         if (OpenConnection())
         {
             var sql = @"
-                SELECT * FROM Orders 
-                WHERE CustomerName LIKE @CustomerName
-                ORDER BY OrderDate DESC";
+                SELECT * FROM orders 
+                WHERE customer_name LIKE @CustomerName COLLATE NOCASE
+                ORDER BY order_date DESC";
 
             return Connection!.Query<Order>(sql, new { CustomerName = $"%{customerName}%" }, transaction);
         }
@@ -502,11 +514,11 @@ public class OrderRepository : KpzRepositorySqlServer<long, Order>, IOrderReposi
         if (OpenConnection())
         {
             var sql = @"
-                SELECT ISNULL(SUM(TotalAmount), 0) 
-                FROM Orders 
-                WHERE IsPaid = 1
-                  AND (@DateFrom IS NULL OR OrderDate >= @DateFrom)
-                  AND (@DateTo IS NULL OR OrderDate <= @DateTo)";
+                SELECT COALESCE(SUM(total_amount), 0) 
+                FROM orders 
+                WHERE is_paid = 1
+                  AND (@DateFrom IS NULL OR order_date >= @DateFrom)
+                  AND (@DateTo IS NULL OR order_date <= @DateTo)";
 
             return Connection!.ExecuteScalar<decimal>(sql, new { DateFrom = dateFrom, DateTo = dateTo }, transaction);
         }
@@ -518,9 +530,9 @@ public class OrderRepository : KpzRepositorySqlServer<long, Order>, IOrderReposi
         if (OpenConnection())
         {
             var sql = @"
-                SELECT * FROM Orders 
-                WHERE IsPaid = 0
-                ORDER BY OrderDate DESC";
+                SELECT * FROM orders 
+                WHERE is_paid = 0
+                ORDER BY order_date DESC";
 
             return Connection!.Query<Order>(sql, null, transaction);
         }
@@ -535,8 +547,8 @@ public class OrderRepository : KpzRepositorySqlServer<long, Order>, IOrderReposi
 using KpzRepository.Factory;
 using KpzRepository.Model;
 using KpzRepository.Repository;
-using KpzRepository.SqlServer.Factory;
-using Microsoft.Data.SqlClient;
+using KpzRepository.Sqlite.Factory;
+using Microsoft.Data.Sqlite;
 using MyApp.Repositories;
 
 namespace MyApp.Factories;
@@ -544,7 +556,7 @@ namespace MyApp.Factories;
 /// <summary>
 /// Custom factory that creates specialized repositories.
 /// </summary>
-public class CustomRepositoryFactory : KpzRepositorySqlServerFactory
+public class CustomRepositoryFactory : KpzRepositorySqliteFactory
 {
     public CustomRepositoryFactory(string connectionString) : base(connectionString)
     {
@@ -570,7 +582,7 @@ using MyApp.Factories;
 using MyApp.Repositories;
 
 // Create custom factory
-string connectionString = "Server=localhost;Database=MyDb;Trusted_Connection=True;";
+string connectionString = "Data Source=myapp.db;Cache=Shared";
 var factory = new CustomRepositoryFactory(connectionString);
 
 // Get custom repository with extended methods
@@ -603,13 +615,17 @@ Console.WriteLine($"Unpaid Orders: {unpaidOrders.Count()}");
 ### Best Practices for Custom Repositories
 
 1. **Keep Methods Focused** - Each custom method should have a single, clear purpose
-2. **Use Transactions** - Always support optional transaction parameters for consistency
-3. **Handle Connections** - Always check `OpenConnection()` before executing queries
-4. **Return Empty Collections** - Return `Enumerable.Empty<T>()` instead of `null` for failed queries
-5. **Use Parameterized Queries** - Always use Dapper parameters to prevent SQL injection
-6. **Document Your Methods** - Add XML documentation for all custom methods
-7. **Test Thoroughly** - Write unit tests for each custom method
-8. **Consider Async** - Provide async versions of custom methods for better scalability
+2. **Use snake_case in SQL** - All SQL queries should use snake_case column names
+3. **Use COLLATE NOCASE** - For case-insensitive text searches in SQLite
+4. **Use COALESCE** - SQLite uses `COALESCE` for NULL handling (similar to `ISNULL` in SQL Server)
+5. **Boolean as INTEGER** - Remember SQLite stores booleans as INTEGER (0/1)
+6. **Use Transactions** - Always support optional transaction parameters for consistency
+7. **Handle Connections** - Always check `OpenConnection()` before executing queries
+8. **Return Empty Collections** - Return `Enumerable.Empty<T>()` instead of `null` for failed queries
+9. **Use Parameterized Queries** - Always use Dapper parameters to prevent SQL injection
+10. **Document Your Methods** - Add XML documentation for all custom methods
+11. **Test Thoroughly** - Write unit tests for each custom method
+12. **Consider Async** - Provide async versions of custom methods for better scalability
 
 ### Summary
 
@@ -621,6 +637,7 @@ Extending KpzRepository with custom methods allows you to:
 - ✅ Keep all repository benefits (transactions, connection management, etc.)
 - ✅ Use dependency injection seamlessly
 - ✅ Write testable, maintainable code
+- ✅ Leverage SQLite-specific features (FTS, JSON functions, etc.)
 
 ## Implementing Custom Database Provider
 
@@ -874,4 +891,4 @@ Maxim Mihaluk
 
 ---
 
-**Built with ❤️ using .NET 8, Dapper, and Dapper.Contrib**
+**Built with ❤️ using .NET 8, Dapper, Dapper.Contrib, and Microsoft.Data.Sqlite**

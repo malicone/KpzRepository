@@ -7,17 +7,18 @@
     <AssemblyTitle></AssemblyTitle>
     <ApplicationIcon>KpzRepository_lib_icon.ico</ApplicationIcon>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>Repository pattern implementation for MS SQL Server</Title>
+    <Title>KpzRepository.SqlServer</Title>
     <Authors>Maxim Mihaluk</Authors>
-    <Description>Repository pattern implementation for MS SQL Server</Description>
+    <Description>A lightweight and flexible repository pattern implementation for .NET 8, providing a unified interface for database operations across SQL Server.</Description>
     <Copyright>Maxim Mihaluk</Copyright>
     <PackageIcon>KpzRepository_lib_icon.png</PackageIcon>
-    <PackageProjectUrl>kpzrepository.com</PackageProjectUrl>
+    <PackageProjectUrl>https://kpzrepository.com</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/malicone/KpzRepository</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>repository-pattern;database;sqlserver</PackageTags>
     <PackageReleaseNotes>Initial build</PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,11 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\images\KpzRepository_lib_icon.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\README.md">
+    <None Include="..\LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
@@ -41,6 +38,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KpzRepository\KpzRepository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
