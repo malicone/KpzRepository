@@ -19,14 +19,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="KpzRepository_lib_icon.ico" />
+    <None Remove="KpzRepository_lib_icon.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\images\KpzRepository_lib_icon.png">
+    <EmbeddedResource Include="KpzRepository_lib_icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KpzRepository_lib_icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
-    </None>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

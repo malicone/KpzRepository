@@ -1,7 +1,5 @@
 # KpzRepository.Sqlite
 
-![KpzRepository](../images/KpzRepository_lib_icon.png)
-
 A lightweight and flexible repository pattern implementation for .NET 8, providing a unified interface for database operations with SQLite. Built on top of Dapper and Dapper.Contrib, KpzRepository simplifies data access while maintaining performance and flexibility.
 
 ## Table of Contents
@@ -891,4 +889,5 @@ Maxim Mihaluk
 
 ---
 
-**Built with ❤️ using .NET 8, Dapper, Dapper.Contrib, and Microsoft.Data.Sqlite**
+**Built with ❤️ using .NET 8, Dapper, and Dapper.Contrib**  
+*Built with Visual Studio 2026 Insiders [11819.209], Class library template, targeting .NET8.0, C# 12.*

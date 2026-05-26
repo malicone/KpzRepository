@@ -19,13 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="KpzRepository_lib_icon.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="KpzRepository_lib_icon.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+    <EmbeddedResource Include="KpzRepository_lib_icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
@@ -35,10 +29,11 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </EmbeddedResource>
-    <None Include="..\images\KpzRepository_lib_icon.png">
+    <EmbeddedResource Include="KpzRepository_lib_icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
-    </None>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -53,6 +48,10 @@
 
   <ItemGroup>
     <None Update="KpzRepository_lib_icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
