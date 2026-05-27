@@ -1,0 +1,20 @@
+﻿@inherits LayoutComponentBase
+
+<div class="site-layout">
+    <aside class="site-sidebar site-sidebar--left" aria-hidden="true"></aside>
+
+    <div class="site-center">
+        <article class="site-content">
+            @Body
+        </article>
+        <SiteFooter />
+    </div>
+
+    <aside class="site-sidebar site-sidebar--right" aria-hidden="true"></aside>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>

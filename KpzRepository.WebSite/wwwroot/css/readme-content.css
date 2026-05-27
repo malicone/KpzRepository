@@ -1,0 +1,176 @@
+/* Documentation typography for README content rendered as HTML. */
+
+.nuget-packages {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.nuget-packages__heading {
+    margin: 0 0 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.nuget-packages__list {
+    margin: 0;
+    padding-left: 1.5rem;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.nuget-packages__list a {
+    color: #1a5fb4;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.nuget-packages__list a:hover,
+.nuget-packages__list a:focus-visible {
+    text-decoration: underline;
+    color: #0d3d7a;
+}
+
+.readme-content {
+    font-size: 1rem;
+    line-height: 1.65;
+    word-wrap: break-word;
+}
+
+.readme-content h1 {
+    margin: 0 0 1rem;
+    font-size: 2rem;
+    line-height: 1.25;
+    border-bottom: 2px solid #e8e0d8;
+    padding-bottom: 0.5rem;
+}
+
+.readme-content h2 {
+    margin: 2rem 0 0.75rem;
+    font-size: 1.5rem;
+    line-height: 1.3;
+    padding-top: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.readme-content h3 {
+    margin: 1.5rem 0 0.5rem;
+    font-size: 1.2rem;
+}
+
+.readme-content h4 {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 1.05rem;
+}
+
+.readme-content p {
+    margin: 0 0 1rem;
+}
+
+.readme-content ul,
+.readme-content ol {
+    margin: 0 0 1rem;
+    padding-left: 1.75rem;
+}
+
+.readme-content li {
+    margin-bottom: 0.35rem;
+}
+
+.readme-content li > p {
+    margin-bottom: 0.5rem;
+}
+
+.readme-content a {
+    color: #1a5fb4;
+    text-decoration: underline;
+}
+
+.readme-content a:hover,
+.readme-content a:focus-visible {
+    color: #0d3d7a;
+}
+
+.readme-content code {
+    font-family: Consolas, "Cascadia Code", "SF Mono", Menlo, Monaco, "Courier New", monospace;
+    font-size: 0.9em;
+    background-color: #f4f0ec;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+}
+
+.readme-content pre {
+    margin: 0 0 1.25rem;
+    padding: 1rem 1.15rem;
+    overflow-x: auto;
+    background-color: #fff;
+    color: #1a1a1a;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.readme-content pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+}
+
+.readme-content blockquote {
+    margin: 0 0 1rem;
+    padding: 0.5rem 1rem;
+    border-left: 4px solid var(--sidebar-color, #dbcbbc);
+    background-color: #faf8f6;
+    color: #333;
+}
+
+.readme-content table {
+    width: 100%;
+    margin: 0 0 1.25rem;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.readme-content th,
+.readme-content td {
+    border: 1px solid #ddd;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+}
+
+.readme-content th {
+    background-color: #f4f0ec;
+    font-weight: 600;
+}
+
+.readme-content hr {
+    margin: 2rem 0;
+    border: none;
+    border-top: 1px solid #ddd;
+}
+
+.readme-content strong {
+    font-weight: 600;
+}
+
+.readme-content em {
+    font-style: italic;
+}
+
+.readme-error {
+    color: #b32121;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .readme-content h1 {
+        font-size: 1.6rem;
+    }
+
+    .readme-content pre {
+        font-size: 0.8rem;
+        padding: 0.75rem;
+    }
+}

@@ -1,0 +1,35 @@
+﻿@page "/"
+@using KpzRepository.WebSite.Services
+@inject ReadmeRenderer ReadmeRenderer
+
+<PageTitle>KpzRepository</PageTitle>
+
+<section class="nuget-packages" aria-label="NuGet packages">
+    <h2 class="nuget-packages__heading">NuGet packages</h2>
+    <ul class="nuget-packages__list">
+        <li>
+            <a href="https://www.nuget.org/packages/KpzRepository/1.0.0" rel="noopener noreferrer" target="_blank">
+                KpzRepository
+            </a>
+        </li>
+        <li>
+            <a href="https://www.nuget.org/packages/KpzRepository.PostgreSql/1.0.0" rel="noopener noreferrer" target="_blank">
+                KpzRepository.PostgreSql
+            </a>
+        </li>
+        <li>
+            <a href="https://www.nuget.org/packages/KpzRepository.Sqlite/1.0.0" rel="noopener noreferrer" target="_blank">
+                KpzRepository.Sqlite
+            </a>
+        </li>
+        <li>
+            <a href="https://www.nuget.org/packages/KpzRepository.SqlServer/1.0.0" rel="noopener noreferrer" target="_blank">
+                KpzRepository.SqlServer
+            </a>
+        </li>
+    </ul>
+</section>
+
+<div class="readme-content">
+    @((MarkupString)ReadmeRenderer.GetHtml())
+</div>

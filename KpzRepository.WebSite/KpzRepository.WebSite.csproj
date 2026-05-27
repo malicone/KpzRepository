@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>KpzRepository.WebSite</RootNamespace>
+    <Title>KpzRepository.WebSite</Title>
+    <Authors>Maxim Mihaluk</Authors>
+    <Description>Official documentation website for the KpzRepository NuGet packages.</Description>
+    <Copyright>Maxim Mihaluk</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.40.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\README.md" Link="README.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

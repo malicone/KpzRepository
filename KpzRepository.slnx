@@ -6,4 +6,5 @@
   <Project Path="KpzRepository.SqlServer.Tests/KpzRepository.SqlServer.Tests.csproj" Id="717f84aa-eedb-4871-abea-9921b8133ec5" />
   <Project Path="KpzRepository.SqlServer/KpzRepository.SqlServer.csproj" />
   <Project Path="KpzRepository/KpzRepository.csproj" />
+  <Project Path="KpzRepository.WebSite/KpzRepository.WebSite.csproj" />
 </Solution>

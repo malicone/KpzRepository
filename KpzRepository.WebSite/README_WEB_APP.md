@@ -1,0 +1,1 @@
+KpzRepository.WebSite is .NET8 C#12 Blazor Web App server mode.
